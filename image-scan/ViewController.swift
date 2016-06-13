@@ -50,6 +50,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
   var intervaltime: NSTimeInterval! = 1.0
   var buttonMainCenter:CGPoint!
   var buttonMainSize:CGPoint!
+  var notificationtRedyCenter:CGPoint!
   var lightBarWidth:CGFloat! = 10
   var scanPlayAtoB:[CGFloat]!
   
@@ -71,15 +72,19 @@ Play Mode:
    5 (stamp while device stay stoping)
 */
   var directionLeft:Bool = true
-  var phaize:Int8 = 0
+  var phaize:Int8! = 0
   /*
    0 = menu,
    1 = pre-prePlay,
    2 = play
    3 = done
-   4 = ?
-   */
-  
+   4 = firing(tap Mode)
+   5 = notification PopUp
+   6 = loopScanPlaying
+   7 = StampPlaying
+  */
+  var noActionTimer:Int! = 0
+
   
   
   //カウント：0-3
@@ -103,19 +108,24 @@ Play Mode:
   var count3Label: UILabel!
   var count2Label: UILabel!
   var count1Label: UILabel!
+  var notificationLabel: UILabel!
   
   //ジェスチャー
-  var resetTap:UITapGestureRecognizer!
-  var stopTap:UITapGestureRecognizer!
+  var viewTap:UITapGestureRecognizer!
+  //var stopTap:UITapGestureRecognizer!
   var stampTap:UITapGestureRecognizer!
   var replayTap:UITapGestureRecognizer!
   var myPan:UIPanGestureRecognizer!
   var swipeLeft:UISwipeGestureRecognizer!
   var swipeRight:UISwipeGestureRecognizer!
+  var swipeDown:UISwipeGestureRecognizer!
+  var swipeUp:UISwipeGestureRecognizer!
   
   var stampSpeedTable:[Double]!
   var stampSpStringTable:[String]!
   var scanSpeedTable:[Double]!
+  
+  
   
   
 
@@ -163,15 +173,21 @@ Play Mode:
     
     
     // パン認識.スワイプ左、右
-    resetTap = UITapGestureRecognizer(target: self, action: "resetImage:")
-    stopTap = UITapGestureRecognizer(target: self, action: "stopPlayTapped:")
+    viewTap = UITapGestureRecognizer(target: self, action: "viewTapped:")
+    //stopTap = UITapGestureRecognizer(target: self, action: "stopPlayTapped:")
     stampTap = UITapGestureRecognizer(target:self, action:"prePreStampPlay:")
-    replayTap = UITapGestureRecognizer(target:self, action:"replayTapped:")
+    //replayTap = UITapGestureRecognizer(target:self, action:"replayTapped:")
     myPan = UIPanGestureRecognizer(target: self, action: "panGesture:")
     swipeLeft = UISwipeGestureRecognizer(target: self, action: "didSwipe:")
     swipeRight = UISwipeGestureRecognizer(target: self, action: "didSwipe:")
+    swipeDown = UISwipeGestureRecognizer(target: self,action:"didSwipe:")
+    swipeUp = UISwipeGestureRecognizer(target: self,action:"didSwipe:")
     swipeLeft.direction = .Left
     swipeRight.direction = .Right
+    swipeDown.direction = .Down
+    swipeUp.direction = .Up
+    
+    self.view.addGestureRecognizer(viewTap)
 
     
 
@@ -185,6 +201,7 @@ Play Mode:
     
     buttonMainCenter = CGPointMake(screenWidth/2, screenWidth * 0.4+screenHeight / 10 * 2.5)
     buttonMainSize = CGPointMake(screenWidth * 0.8, screenWidth * 0.8)
+    notificationtRedyCenter = CGPointMake(screenWidth/2,screenHeight + buttonMainSize.x/2)
     
     let countRect:CGRect=CGRectMake(screenWidth, screenHeight / 10 * 2.5, buttonMainSize.x, buttonMainSize.y)
     
@@ -198,6 +215,16 @@ Play Mode:
     count2Label.countLabelformat()
     count1Label.text="1"
     count1Label.countLabelformat()
+    
+    notificationLabel = UILabel(frame: countRect)
+    notificationLabel.countLabelformat()
+    notificationLabel.layer.borderColor = UIColor.blueColor().CGColor
+    notificationLabel.layer.borderWidth = step / 3
+    notificationLabel.backgroundColor = UIColor.clearColor()
+    notificationLabel.textColor = UIColor.blueColor()
+    notificationLabel.numberOfLines = 0
+    notificationLabel.center=notificationtRedyCenter
+    
     
   
     //Playボタンのカスタマイズ
@@ -214,12 +241,13 @@ Play Mode:
     intervalLabel.text = "time"
     
     //設定ボタン
-    viewerInfoButton = UIButton(frame: CGRectMake(buttonMainSize.x/2, buttonMainSize.y/2, screenWidth * 2 / 10,screenWidth * 2 / 10  ))
+    /*viewerInfoButton = UIButton(frame: CGRectMake(buttonMainSize.x/2, buttonMainSize.y/2, screenWidth * 2 / 10,screenWidth * 2 / 10  ))
     viewerInfoButton.layer.cornerRadius = viewerInfoButton.frame.width / 2
     viewerInfoButton.center =  CGPointMake(buttonMainSize.x * 0.75,buttonMainSize.y * 0.25)
     viewerInfoButton.backgroundColor = UIColor.whiteColor()
     viewerInfoButton.setTitle("Info", forState: UIControlState.Normal)
     viewerOpeView.addSubview(viewerInfoButton)
+    */
     
     //ジェスチャーの追加
     viewerOpeView.addGestureRecognizer(myPan)
@@ -261,7 +289,7 @@ Play Mode:
     self.view.addSubview(count3Label)
     self.view.addSubview(count2Label)
     self.view.addSubview(count1Label)
-    
+    self.view.addSubview(notificationLabel)
     //UIButtonを追加
     self.view.addSubview(addImageButton)
     self.view.addSubview(viewerOpeView)
@@ -329,14 +357,15 @@ Play Mode:
       
       cameraView.image = pickedImage
       opeImage = UIImageView(frame:viewerOpeView.frame)
+      opeImage.tag = 1
+      opeImage.userInteractionEnabled = true
       opeImage.image = pickedImage
       opeImage.frame.origin=CGPointMake(0,0)
       print(viewerOpeView.subviews.count)
       
-      viewerOpeView.subviews
       viewerOpeView.addSubview(opeImage)
       //viewerOpeView.sendSubviewToBack(opeImage)
-      viewerOpeView.bringSubviewToFront(viewerInfoButton)
+      //viewerOpeView.bringSubviewToFront(viewerInfoButton)
       viewerOpeView.bringSubviewToFront(intervalLabel)
       
       // 画像の幅・高さの取得
@@ -365,6 +394,11 @@ Play Mode:
     
   }
   
+  override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+    let touch = touches.first
+     print("タッチした画像のタグ:",touch?.view?.tag)
+    
+  }
   
   /*
   @IBAction func savePic(sender: AnyObject) {
@@ -397,7 +431,7 @@ Play Mode:
   }
 
 
-  func showAlbum(sender: UIButton){
+  func showAlbum(){
     let sourceType:UIImagePickerControllerSourceType = UIImagePickerControllerSourceType.PhotoLibrary
     
     if UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.PhotoLibrary){
@@ -504,6 +538,7 @@ Play Mode:
   
   func prePlay(style:Int8,mode:Int8,speed:Int8){
     phaize = 1
+    print("phaze:",self.phaize)
     
     
     // アニメーション処理
@@ -637,8 +672,7 @@ Play Mode:
   
   
   func playimage(style:Int8,mode:Int8,speed:Int8){
-  
-  phaize = 2
+
     // アニメーション処理
   print("animation")
   cameraView.frame = scanSizeSet(cameraView)
@@ -652,7 +686,7 @@ Play Mode:
     case 1:
     scanPlay(rightImagePoint, endX: leftImagePoint,mode:mode,speed:speed)
     default:
-      stampPlay(mode,speed:speed)
+    stampPlay(mode,speed:speed)
     break
   }
 }
@@ -670,6 +704,8 @@ Play Mode:
                                 self.frameViewL.frame.origin.x = -1 * self.lightBarWidth
       },completion: { finished in
         if(mode == 0){
+          self.phaize = 2
+          print("phaze:",self.phaize)
           //single mode
         UIView.animateWithDuration(self.intervaltime,
           animations: {() -> Void in
@@ -678,7 +714,10 @@ Play Mode:
                 self.closingPlayImage()
         })
         }else if(mode == 1 ){
-          self.view.addGestureRecognizer(self.stopTap)
+          self.phaize = 6
+           print("phaze:",self.phaize)
+          //self.view.addGestureRecognizer(self.viewTap)
+          
           //loop mode
           UIView.animateWithDuration(self.intervaltime, delay: 0.0,
             options: UIViewAnimationOptions.Repeat, animations: { () -> Void in
@@ -686,39 +725,124 @@ Play Mode:
             }, completion: nil)
         }else{
           //tapping restart mode
+          self.phaize = 2
+          print("phaze:",self.phaize)
           print("tapping restart mode")
-          self.view.addGestureRecognizer(self.replayTap)
-          
-        
+         // self.view.addGestureRecognizer(self.viewTap)
+          self.oneSecondTimer()
+          self.view.addGestureRecognizer(self.swipeDown)
         }//ifelse
     })
     
   }
+  func oneSecondTimer(){
+    if(phaize == 2){
+      dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(1.0 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) {
+        self.noActionTimer = self.noActionTimer + 1
+        print("timer:",self.noActionTimer)
+        if(self.noActionTimer > 5){self.notificationOpe(0)}
+        self.oneSecondTimer()
+      }
+    }else if(phaize == 4 || phaize == 5){
+    noActionTimer = 0
+      dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(1.0 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) {
+        print("timer_is_Stanby")
+        self.oneSecondTimer()
+      }
+    }else{
+      noActionTimer = 0
+      print("timer Ended")
+    }
+  }
+  func notificationOpe(textNum:Int){
+    let text:String
+    switch textNum{
+    case 0:
+      text="Tap screen -> Fire!\n\nor\n\n Swipe Down! -> quit"
+      print(text)
+      notificationLabel.text = text
+    default:
+      break
+    }
+  self.notificationPopUp()
+    
+  }
+  func notificationPopUp(){
+    phaize = 5
+    //self.view.addGestureRecognizer(viewTap)
+    print("phaze:",self.phaize)
+    print("notificationPopUp()")
+    UIView.animateWithDuration(0.3,
+                               animations: {() -> Void in
+                                self.notificationLabel.center = self.buttonMainCenter
+    })
+  }
+  func notificationClose(){
+    
+    print("notificationClose()")
+    UIView.animateWithDuration(0.3,
+                               animations: {() -> Void in
+                                self.notificationLabel.center = self.notificationtRedyCenter
+    })
+  }
   
   func replayTapped(gestureRecognizer: UITapGestureRecognizer){
+    if(phaize != 4){
+      if(phaize == 5){self.notificationClose()}
+      
+      phaize = 4
+      print("phaze:",self.phaize)
+    }
+    noActionTimer = 0
     cameraView.layer.removeAllAnimations()
     cameraView.frame.origin.x = scanPlayAtoB[0]
         UIView.animateWithDuration(self.intervaltime,
           animations: {() -> Void in
             self.cameraView.frame.origin.x = self.scanPlayAtoB[1]
           },completion: { finished in
+            self.phaize = 2
+            print("phaze:",self.phaize)
+            self.noActionTimer = 0
         })
 }
   
-  
+  func backMenu(){
+    self.cameraView.frame.origin.x = self.step * 10 - self.lightBarWidth
+    UIView.animateWithDuration(0.3, animations: { () -> Void in
+      self.viewerOpeView.alpha = 1.0
+      self.viewerOpeView.center.x = self.screenWidth * 0.5
+      //扉オープん
+      self.frameViewR.frame.origin.x = self.step * 10 + self.lightBarWidth
+      self.frameViewL.frame.origin.x = -1 * self.lightBarWidth
+      },completion: { finished in
+        self.phaize = 0
+        print("phaze:",self.phaize)
+    })
+}
   func closingPlayImage() {
+    print("closingPlayImage()")
+    cameraView.layer.removeAllAnimations()
     UIView.animateWithDuration(0.3, animations: { () -> Void in
       //一度、真っ黒に扉が閉じる
       self.frameViewR.frame.origin.x = self.step * 10
       self.frameViewL.frame.origin.x = 0
       },completion: { finished in
         self.phaize = 3
-        self.view.addGestureRecognizer(self.resetTap)
+        print("phaze:",self.phaize)
         self.cameraView.frame.origin.x = self.step * 10 - self.lightBarWidth
+        
     })
-
-    
-}
+  }
+  func closingTapScanMode() {
+    print("closingTapScanMode()")
+    UIView.animateWithDuration(0.3, animations: { () -> Void in
+      //一度、真っ黒に扉が閉じる
+      self.frameViewR.frame.origin.x = self.step * 10
+      self.frameViewL.frame.origin.x = 0
+      },completion: { finished in
+        self.backMenu()
+    })
+  }
   
   func stopPlayTapped(gestureRecognizer: UITapGestureRecognizer){
     print("stopPlayTapped")
@@ -728,6 +852,9 @@ Play Mode:
   
   func stampPlay(mode:Int8,speed:Int8){
     
+    self.phaize = 7
+    print("phaze:",self.phaize)
+    
     //扉を消して画像を表示
     frameViewR.alpha=0
     frameViewL.alpha=0
@@ -736,18 +863,17 @@ Play Mode:
     cameraView.frame = CGRectMake(0,0,screenWidth,screenHeight)
      print("frame:x=",cameraView.frame.origin.x,"frame:y=",cameraView.frame.origin.y,"frame:heigth=",cameraView.frame.size.height,"frame:width=",cameraView.frame.size.width)
     //画像表示
-    //self.cameraView.alpha = 1
     let time:Double = stampSpeedTable[Int(speed)] * Double(NSEC_PER_SEC)
     print("speed:",stampSpeedTable[Int(speed)])
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(time)), dispatch_get_main_queue()) {
     //self.cameraView.alpha = 0
-    self.view.addGestureRecognizer(self.resetTap)
+      //self.view.addGestureRecognizer(self.viewTap)
       self.frameViewR.alpha=1
       self.frameViewL.alpha=1
       self.cameraView.contentMode = .ScaleToFill
-      
-      print("frame:x=",self.cameraView.frame.origin.x,"frame:y=",self.cameraView.frame.origin.y,"frame:heigth=",self.cameraView.frame.size.height,"frame:width=",self.cameraView.frame.size.width)
+      self.phaize = 3
+      print("phaze:",self.phaize)
     }
   }
   
@@ -769,21 +895,48 @@ Play Mode:
     cameraView.frame.origin.x = step * 10 - lightBarWidth
   }
   
-func resetImage(gestureRecognizer: UITapGestureRecognizer){
-    UIView.animateWithDuration(0.3, animations: { () -> Void in
-      self.viewerOpeView.alpha = 1.0
-      self.viewerOpeView.center.x = self.screenWidth * 0.5
-      //扉オープん
-      self.frameViewR.frame.origin.x = self.step * 10 + self.lightBarWidth
-      self.frameViewL.frame.origin.x = -1 * self.lightBarWidth
+func viewTapped(gestureRecognizer: UITapGestureRecognizer){
+  print("viewtapped! phaize:",phaize)
+  if(phaize == 3){
+    self.backMenu()
+  }else if(phaize == 4){
+    noActionTimer = 0
+    cameraView.layer.removeAllAnimations()
+    cameraView.frame.origin.x = scanPlayAtoB[0]
+    UIView.animateWithDuration(self.intervaltime,
+                               animations: {() -> Void in
+                                self.cameraView.frame.origin.x = self.scanPlayAtoB[1]
       },completion: { finished in
-        self.phaize = 0
-        //self.view.bringSubviewToFront(self.scanXdataLabel)
-        //self.view.bringSubviewToFront(self.intervalLabel)
-        self.view.removeGestureRecognizer(self.resetTap)
-        
+        self.phaize = 2
+        print("phaze:",self.phaize)
+        self.noActionTimer = 0
     })
-  
+  }else if(phaize == 2){
+    noActionTimer = 0
+    phaize = 4
+     print("phaze:",self.phaize)
+    cameraView.layer.removeAllAnimations()
+    cameraView.frame.origin.x = scanPlayAtoB[0]
+    UIView.animateWithDuration(self.intervaltime,
+                               animations: {() -> Void in
+                                self.cameraView.frame.origin.x = self.scanPlayAtoB[1]
+      },completion: { finished in
+        self.phaize = 2
+        print("phaze:",self.phaize)
+        self.noActionTimer = 0
+    })
+  }else if(phaize == 5){
+    //notification表示ちゅう
+    self.notificationClose()
+    phaize = 2
+    print("phaze:",self.phaize)
+  }else if(phaize == 6){
+    cameraView.layer.removeAllAnimations()
+    self.closingPlayImage()
+  }else if(phaize == 0){
+  self.showAlbum()
+    
+  }
   
 }
   /*
@@ -794,6 +947,10 @@ func resetImage(gestureRecognizer: UITapGestureRecognizer){
      print("Pan return")
       return
     }
+    
+    
+    
+    
     let movesize = sender.translationInView(self.view)
     print(movesize.x,sender.numberOfTouches())
     //let maxsize:CGFloat!
@@ -806,13 +963,11 @@ func resetImage(gestureRecognizer: UITapGestureRecognizer){
       
       
         if( viewerOpeView.center.x < screenWidth/8){
-            print("start  direction left, mode =" ,modeNum)
-          phaize = 1
+          print("phaze:",self.phaize)
           
           self.prePlay(0, mode: modeNum, speed:1)
         }else if(viewerOpeView.center.x > screenWidth * 0.8){
             print("start direction Right, mode =" ,modeNum)
-          phaize = 1
           self.prePlay(1,mode: modeNum, speed:1)
         }
     }else{
@@ -845,18 +1000,39 @@ func resetImage(gestureRecognizer: UITapGestureRecognizer){
 internal func didSwipe(sender: UISwipeGestureRecognizer){
     let point = sender.locationInView(self.view)
     print(point)
-    
+  
+  
+    switch phaize {
+    case 0:
     if sender.direction == .Right {
       print("Right")
-      phaize = 1
       self.prePlay(1,mode:0,speed:1)
     }
     else if sender.direction == .Left {
       print("Left")
-      phaize = 1
       prePlay(0, mode: 1,speed:1)
-
     }
+    case 2 :
+    if(sender.direction == .Down){
+      print("did SWipe case2 :swipeDpwn")
+      self.closingTapScanMode()
+      }
+    case 4 :
+      if(sender.direction == .Down){
+        print("did SWipe case4 :swipeDpwn")
+        self.closingTapScanMode()
+
+      }
+    case 5 :
+      if(sender.direction == .Down){
+      print("did SWipe case5 :swipeDpwn")
+        self.notificationClose()
+        self.closingTapScanMode()
+      }
+    
+    default:
+      break
+  }
   
 }
   
