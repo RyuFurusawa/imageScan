@@ -25,16 +25,32 @@ extension UIImage {
 }
 extension  UILabel {
   func countLabelformat(){
-    self.textColor = UIColor.blackColor()
-    self.backgroundColor = UIColor.whiteColor()
+    self.textColor = UIColor.whiteColor()
+    self.backgroundColor = UIColor.darkGrayColor()
     self.layer.masksToBounds = true
     self.layer.cornerRadius = self.frame.width / 2
+    //self.layer.borderColor = UIColor.whiteColor().CGColor
+   // self.layer.borderWidth = self.frame.width / 20
     self.textAlignment = NSTextAlignment.Center
   }
+  func infoLabelformat(){
+    self.textColor = UIColor.whiteColor()
+    self.backgroundColor = UIColor.clearColor()
+    self.layer.masksToBounds = true
+    self.layer.cornerRadius = self.frame.width / 2
+    self.layer.borderColor = UIColor.whiteColor().CGColor
+    self.layer.borderWidth = self.frame.width / 15
+    self.alpha = 0.7
+    self.textAlignment = NSTextAlignment.Center
+    self.userInteractionEnabled = true
+    self.numberOfLines = 0
+
+  }
+
 }
 
 
-class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate,UIPickerViewDelegate, UIPickerViewDataSource{
  // @IBOutlet weak var cameraView: UIImageView!
 
   var screenWidth : CGFloat!
@@ -51,12 +67,16 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
   var buttonMainCenter:CGPoint!
   var buttonMainSize:CGPoint!
   var notificationtRedyCenter:CGPoint!
-  var lightBarWidth:CGFloat! = 10
+  //var lightBarWidth:CGFloat! = 10
   var scanPlayAtoB:[CGFloat]!
+  var isFirstSet:Bool = true
+  var barSizeChangeAnimationCompleted:Bool = true
+  var stampTime:Double = 0.1 //stamp mode1の時に使う
+  
   
   
   //多次元配列にパラメーターを保存していく。
-var viewerData :[Int8]!
+var viewerStyleMode :[Int8]!
 /*
 viewer style:
    0 left scan
@@ -71,6 +91,15 @@ Play Mode:
    4 (tap stamp)
    5 (stamp while device stay stoping)
 */
+  
+  
+  var viewerSettingData=(Int(1),Int(1),CGFloat(100.0))
+   var viewerDataBuffer=(Int(1),Int(1),CGFloat(100.0))
+
+  /*Tuple型
+   0  Scan speed
+   1  Stamp speed
+  */
   var directionLeft:Bool = true
   var phaize:Int8! = 0
   /*
@@ -82,6 +111,8 @@ Play Mode:
    5 = notification PopUp
    6 = loopScanPlaying
    7 = StampPlaying
+   8 = Edit Parametors
+   9 = tap Stamp mode
   */
   var noActionTimer:Int! = 0
 
@@ -101,10 +132,23 @@ Play Mode:
   var frameViewR: UIImageView!
   var frameViewL: UIImageView!
   var viewerInfoButton:UIButton!//サブビュー　パラメーターセットボタン
-  var addImageButton: UIButton!
+  //var addImageButton: UIButton!
+  var addImageButton:UIBarButtonItem!
+  var editButton:UIBarButtonItem!
+  var myToolBar: UIToolbar!
+  var myUIPicker:UIPickerView!
   
-  var scanXdataLabel: UILabel!
-  var intervalLabel: UILabel!
+  
+  var scanintervalLabel: UILabel!
+  var stampIntervalLabel:UILabel!
+  var lightBarSizeLabel:UILabel!
+  var scanSpeedSetCircle:UILabel!
+  var stampSpeedSetCircle:UILabel!
+  var lightBarSizeSetCircle:UILabel!
+  var scanSpeedInfoTxt:UILabel!
+  var stampSpeedInfoTxt:UILabel!
+  var lightBarSizeInfoTxt:UILabel!
+  
   var count3Label: UILabel!
   var count2Label: UILabel!
   var count1Label: UILabel!
@@ -120,10 +164,12 @@ Play Mode:
   var swipeRight:UISwipeGestureRecognizer!
   var swipeDown:UISwipeGestureRecognizer!
   var swipeUp:UISwipeGestureRecognizer!
+  var doubleTap:UITapGestureRecognizer!
   
   var stampSpeedTable:[Double]!
   var stampSpStringTable:[String]!
   var scanSpeedTable:[Double]!
+  var scanSpStringTable:[String]!
   
   
   
@@ -148,35 +194,46 @@ Play Mode:
     super.viewDidLoad()
     
     
-    stampSpeedTable = [0.033,0.017,0.011,0.0083,0.0066,0.005]
-    stampSpStringTable = ["1/30","1/60","1/90","1/120","1/150","1/200"]
+    
+    stampSpeedTable = [0.5,0.25,0.05,0.033,0.017,0.011,0.0083,0.0066,0.005]
+    stampSpStringTable = ["1/2","1/4","1/10","1/30","1/60","1/90","1/120","1/150","1/200"]
     scanSpeedTable = [0.25,0.5,1.0,1.5,2.0,3.0]
+    scanSpStringTable = ["1/4","1/2","1","1.5","2","3"]
     
     
-    //viewerData set 
-    viewerData = [0,0] //scan direction Left , single play
+    
+    //viewerStyleMode set 
+    viewerStyleMode = [0,0] //scan direction Left , single play
 
     print(UIDevice.currentDevice().localizedModel)
     
     // Screen Size の取得
     screenWidth = self.view.bounds.width
     screenHeight = self.view.bounds.height
-    step  = screenWidth / 20
-    lightBarWidth = step
+    if(screenWidth < screenHeight){
+      step  = screenWidth / 20
 
+      buttonMainCenter = CGPointMake(screenWidth/2,screenHeight * 2 / 5)
+      buttonMainSize = CGPointMake(screenWidth * 0.8, screenWidth * 0.8)
+    }else{
+      step  = screenHeight / 20
+
+      buttonMainCenter = CGPointMake(screenWidth/2,screenHeight * 2 / 5)
+      buttonMainSize = CGPointMake(screenHeight * 0.6, screenHeight * 0.6)
+    }
+
+    (viewerSettingData.2) = step
+    print("tuple:",viewerSettingData)
+    viewerDataBuffer = viewerSettingData
     //viewの設定
     self.view.backgroundColor=UIColor.blackColor()
     
-    // ピンチを認識.
-    let myPinchGesture = UIPinchGestureRecognizer(target: self, action: "pinchGesture:")
-    self.view.addGestureRecognizer(myPinchGesture)
-    
-    
+   
     // パン認識.スワイプ左、右
     viewTap = UITapGestureRecognizer(target: self, action: "viewTapped:")
     //stopTap = UITapGestureRecognizer(target: self, action: "stopPlayTapped:")
     stampTap = UITapGestureRecognizer(target:self, action:"prePreStampPlay:")
-    //replayTap = UITapGestureRecognizer(target:self, action:"replayTapped:")
+    stampTap.numberOfTouchesRequired = 1
     myPan = UIPanGestureRecognizer(target: self, action: "panGesture:")
     swipeLeft = UISwipeGestureRecognizer(target: self, action: "didSwipe:")
     swipeRight = UISwipeGestureRecognizer(target: self, action: "didSwipe:")
@@ -186,24 +243,23 @@ Play Mode:
     swipeRight.direction = .Right
     swipeDown.direction = .Down
     swipeUp.direction = .Up
+    // ダブルタップ
+   doubleTap = UITapGestureRecognizer(target:self, action: "prePreStampPlay:")
+    doubleTap.numberOfTouchesRequired = 2
     
     self.view.addGestureRecognizer(viewTap)
-
+    //他のジェスチャーは、最初にイメージを取得してから
+    
     
 
     cameraView = UIImageView(frame: CGRectMake(0,0,screenWidth,screenHeight))
     //cameraView.contentMode =
     cameraView.image = UIImage(named:"IMG_1485low200pxMetaDataOFF.jpg")
+    cameraView.alpha = 0
     
-    scanXdataLabel = UILabel(frame: CGRectMake(screenWidth * 8 / 10, screenHeight / 10, screenWidth * 2 / 10, screenHeight / 10 ))
-    scanXdataLabel.textColor = UIColor.redColor()
-    scanXdataLabel.text = "scan:x"
-    
-    buttonMainCenter = CGPointMake(screenWidth/2, screenWidth * 0.4+screenHeight / 10 * 2.5)
-    buttonMainSize = CGPointMake(screenWidth * 0.8, screenWidth * 0.8)
     notificationtRedyCenter = CGPointMake(screenWidth/2,screenHeight + buttonMainSize.x/2)
     
-    let countRect:CGRect=CGRectMake(screenWidth, screenHeight / 10 * 2.5, buttonMainSize.x, buttonMainSize.y)
+    let countRect:CGRect=CGRectMake(screenWidth, screenHeight * 2 / 5 - buttonMainSize.x/2, buttonMainSize.x, buttonMainSize.y)
     
     count3Label =  UILabel(frame:  countRect)
     count2Label =  UILabel(frame:  countRect)
@@ -218,54 +274,101 @@ Play Mode:
     
     notificationLabel = UILabel(frame: countRect)
     notificationLabel.countLabelformat()
-    notificationLabel.layer.borderColor = UIColor.blueColor().CGColor
+    notificationLabel.layer.borderColor = UIColor.darkGrayColor().CGColor
     notificationLabel.layer.borderWidth = step / 3
     notificationLabel.backgroundColor = UIColor.clearColor()
-    notificationLabel.textColor = UIColor.blueColor()
+    notificationLabel.textColor = UIColor.lightGrayColor()
     notificationLabel.numberOfLines = 0
-    notificationLabel.center=notificationtRedyCenter
-    
-    
-  
+    notificationLabel.center = buttonMainCenter
+    let bundleIdentifier = NSBundle.mainBundle().objectForInfoDictionaryKey("CFBundleName") as! String
+    let version: AnyObject! = NSBundle.mainBundle().objectForInfoDictionaryKey("CFBundleShortVersionString")
+
+    notificationLabel.text = "\(bundleIdentifier) -v\(version)\n How to use \n\n [SwipeLR Image -> SlidePlay]\n (1 finger) -> onetime \n (2 finger) -> Loop \n (3 finger) -> Tap and Fire!\n\n[Tap Image -> Stamp]\n (1 finger) -> onetime \n (2 finger) -> Tap and Fire!"
+
     //Playボタンのカスタマイズ
-    viewerOpeView  = UIView(frame: countRect)
-    viewerOpeView.center.x=buttonMainCenter.x
+    viewerOpeView = UIView(frame: countRect)
+    viewerOpeView.center=buttonMainCenter
     viewerOpeView.layer.masksToBounds = true
-    viewerOpeView.layer.cornerRadius = screenWidth * 0.4
-    viewerOpeView.backgroundColor = UIColor.yellowColor()
+//    viewerOpeView.layer.borderColor = UIColor.darkGrayColor().CGColor
+//    viewerOpeView.layer.borderWidth = step / 3
+    viewerOpeView.layer.cornerRadius = viewerOpeView.frame.width / 2
+    viewerOpeView.backgroundColor = UIColor.clearColor()
+    
+    myToolBar = UIToolbar(frame:  CGRectMake(0, screenHeight - step * 3, screenWidth, step * 3))
+    myToolBar.layer.position = CGPoint(x: self.view.bounds.width/2, y: self.view.bounds.height-step * 1.5)
+    myToolBar.barStyle = UIBarStyle.BlackTranslucent
+    
+    myToolBar.tintColor = UIColor.blueColor()
+    myToolBar.backgroundColor = UIColor.blackColor()
     
     
     
-    intervalLabel = UILabel(frame: CGRectMake(buttonMainSize.x/2, buttonMainSize.y/2, screenWidth * 2 / 10, screenHeight / 20 ))
-    intervalLabel.textColor = UIColor.redColor()
-    intervalLabel.text = "time"
     
-    //設定ボタン
-    /*viewerInfoButton = UIButton(frame: CGRectMake(buttonMainSize.x/2, buttonMainSize.y/2, screenWidth * 2 / 10,screenWidth * 2 / 10  ))
-    viewerInfoButton.layer.cornerRadius = viewerInfoButton.frame.width / 2
-    viewerInfoButton.center =  CGPointMake(buttonMainSize.x * 0.75,buttonMainSize.y * 0.25)
-    viewerInfoButton.backgroundColor = UIColor.whiteColor()
-    viewerInfoButton.setTitle("Info", forState: UIControlState.Normal)
-    viewerOpeView.addSubview(viewerInfoButton)
-    */
+    //create a new button
+    let abutton: UIButton = UIButton(type:UIButtonType.Custom)
+    //set image for button
+    abutton.setImage(UIImage(named: "album-1-100px-alpha.png"), forState: UIControlState.Normal)
+    //add function for button
+    abutton.addTarget(self, action: "showAlbum:", forControlEvents: UIControlEvents.TouchUpInside)
+    //set frame
+    abutton.frame = CGRectMake(0, 0, step * 3 - 3,step * 3 - 3)
+  
     
-    //ジェスチャーの追加
-    viewerOpeView.addGestureRecognizer(myPan)
-    viewerOpeView.addGestureRecognizer(swipeLeft)
-    viewerOpeView.addGestureRecognizer(swipeRight)
-    viewerOpeView.addGestureRecognizer(stampTap)
+    //create a new button
+    let bbutton: UIButton = UIButton(type:UIButtonType.Custom)
+    bbutton.setImage(UIImage(named: "photo-camera-2-100px-alpha.png"), forState: UIControlState.Normal)
+    bbutton.addTarget(self, action: "CameraStart:", forControlEvents: UIControlEvents.TouchUpInside)
+    bbutton.frame = CGRectMake(0, 0, step * 3 - 3,step * 3 - 3)
+    
+    //create a new button
+    let cbutton: UIButton = UIButton(type:UIButtonType.Custom)
+    cbutton.setImage(UIImage(named: "info-2-100px-alpha.png"), forState: UIControlState.Normal)
+    cbutton.addTarget(self, action: "editTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+    cbutton.frame = CGRectMake(0, 0, step * 3 - 3,step * 3 - 3)
     
     
-    addImageButton = UIButton(type: UIButtonType.ContactAdd)
-    addImageButton.center = CGPointMake(screenWidth / 2, screenHeight - step)
+    
+    //Toolbarに追加するボタンの作成
+    //addImageButton = UIBarButtonItem(title: "photo", style:UIBarButtonItemStyle.P, target: self, action: "showAlbum:")
+    addImageButton = UIBarButtonItem(customView:bbutton)
+    addImageButton.tag = 1
+    //addImageButton = UIBarButtonItem(image:UIImage(named: "photo-camera-2-44px.png"), style:UIBarButtonItemStyle.Plain, target: self, action: "showAlbum:")
+    
+    //addImageButton.image?.size =  CGSizeMake( step * 3, step * 3)
+    
+    //addImageButton.setBackgroundImage(UIImage(named: "photo-camera.png"), forState: UIControlState.Normal, style: UIBarButtonItemStyle.Plain, barMetrics: UIBarMetrics.Default)
+   
+    
+    let cameraButton = UIBarButtonItem(customView:abutton)
+    cameraButton.tag = 2
+    editButton = UIBarButtonItem(customView:cbutton)
+    editButton.tag = 3
+    editButton.enabled = false
+    
+    let buttonGap: UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.FlexibleSpace, target: nil, action: nil)
+
+
+    myToolBar.items = [addImageButton ,buttonGap,cameraButton,buttonGap,editButton]
+    
+    
+    
+
+    /*
+    
+    //addImageButton = UIButton(type: UIButtonType.ContactAdd)
+    addImageButton = UIButton(frame:CGRectMake(0,screenHeight - step * 3,screenWidth,step * 3))
+    addImageButton.setTitle("select Image", forState:  UIControlState.Normal)
+    addImageButton.backgroundColor = UIColor.grayColor()
+    //addImageButton.center = CGPointMake(screenWidth / 2, screenHeight - step)
     // イベントを追加する.
     addImageButton.addTarget(self, action: "showAlbum:",forControlEvents: UIControlEvents.TouchUpInside)
+    */
     
     
-  
-    viewerOpeView.addSubview(intervalLabel)
-    //viewerOpeView.addSubview(viewerOpeView)
-  
+    myUIPicker = UIPickerView()
+    myUIPicker.frame = CGRectMake(0,0,self.view.bounds.width, 250.0)
+    myUIPicker.delegate = self
+    myUIPicker.dataSource = self
     
     
     frameViewR = UIImageView(frame: CGRectMake(step * 10.5,0,step * 10,screenHeight))
@@ -284,27 +387,103 @@ Play Mode:
     self.view.addSubview(frameViewL)
     
     //UILabelをViewへ
-    self.view.addSubview(scanXdataLabel)
-    //self.view.addSubview(intervalLabel)
     self.view.addSubview(count3Label)
     self.view.addSubview(count2Label)
     self.view.addSubview(count1Label)
     self.view.addSubview(notificationLabel)
     //UIButtonを追加
-    self.view.addSubview(addImageButton)
+    //self.view.addSubview(addImageButton)
+    self.view.addSubview(myToolBar)
+    
     self.view.addSubview(viewerOpeView)
     
+    /*
+    //self.view.addSubview(myUIPicker)
+    let setBarARect = CGRectMake(screenWidth * 1 / 7, screenHeight * 2 / 3,screenWidth * 5 / 7,screenHeight * 1 / 15 )
+    let setBarBRect = CGRectMake(screenWidth * 1 / 7, screenHeight * 2 / 3+screenHeight * 1 / 14,screenWidth * 5 / 7,screenHeight * 1 / 15 )
+
+    let scanSpeedBarBase = UIView(frame:setBarARect)
+    scanSpeedBarBase.backgroundColor = UIColor.grayColor()
+    let scanSpeedBartop = UIView(frame:setBarARect)
+    scanSpeedBartop.backgroundColor = UIColor.lightGrayColor()
+    scanSpeedBarBase.tag = 20
+    //scanSpeedBartop.frame.size.width = scanSpeedBartop.frame.size.width/3
+    scanSpeedBarBase.addSubview(scanSpeedBartop)
+    scanSpeedBarBase.addGestureRecognizer(myPan)
     
+    let stampSpeedBarBase = UIView(frame:setBarBRect)
+    stampSpeedBarBase.backgroundColor = UIColor.darkGrayColor()
+    let stampSpeedBarTop = UIView(frame:setBarBRect)
+    stampSpeedBarTop.backgroundColor = UIColor.lightGrayColor()
+    
+    stampSpeedBarBase.addSubview(stampSpeedBarTop)
+    stampSpeedBarBase.tag = 21
+    
+    self.view.addSubview(scanSpeedBartop)
+    self.view.addSubview(stampSpeedBarTop)
+    */
+    let setCircleRect = CGRectMake(0,0,buttonMainSize.x/3.3,buttonMainSize.x/3.3)
+    
+    scanSpeedSetCircle = UILabel(frame:setCircleRect)
+    stampSpeedSetCircle = UILabel(frame:setCircleRect)
+    lightBarSizeSetCircle = UILabel(frame:setCircleRect)
+    
+    scanSpeedInfoTxt = UILabel(frame:setCircleRect)
+    stampSpeedInfoTxt = UILabel(frame:setCircleRect)
+    lightBarSizeInfoTxt = UILabel(frame:setCircleRect)
+    scanSpeedSetCircle.text = "1sec"
+    stampSpeedSetCircle.text = "1/60"
+    lightBarSizeSetCircle.text = "20px"
+    scanSpeedInfoTxt.text = "Slide\nSpeed"
+    stampSpeedInfoTxt.text = "Stamp\nSpeed"
+    lightBarSizeInfoTxt.text = "Bar\nSize"
+    scanSpeedSetCircle.infoLabelformat()
+    stampSpeedSetCircle.infoLabelformat()
+    lightBarSizeSetCircle.infoLabelformat()
+    scanSpeedInfoTxt.infoLabelformat()
+    stampSpeedInfoTxt.infoLabelformat()
+    lightBarSizeInfoTxt.infoLabelformat()
+    scanSpeedInfoTxt.layer.borderWidth = 0
+    stampSpeedInfoTxt.layer.borderWidth = 0
+    lightBarSizeInfoTxt.layer.borderWidth = 0
+    
+    let sukimaSetX:CGFloat = step / 2
+    let setYCenter:CGFloat = screenHeight + buttonMainSize.x / 6.6
+    let setXBaseIndent:CGFloat = (screenWidth - (setCircleRect.size.width*3 + sukimaSetX*2))/2
+    let textInfoSukima:CGFloat = scanSpeedSetCircle.frame.size.height
+    
+    scanSpeedSetCircle.center = CGPointMake(setXBaseIndent+setCircleRect.size.width/2,setYCenter)
+    stampSpeedSetCircle.center = CGPointMake(setXBaseIndent + setCircleRect.size.width*1.5+sukimaSetX,setYCenter)
+    lightBarSizeSetCircle.center = CGPointMake(setXBaseIndent + setCircleRect.size.width*2.5+sukimaSetX*2,setYCenter)
+    
+    scanSpeedInfoTxt.center = CGPointMake(setXBaseIndent+setCircleRect.size.width/2,setYCenter + textInfoSukima)
+    stampSpeedInfoTxt.center = CGPointMake(setXBaseIndent + setCircleRect.size.width*1.5+sukimaSetX,setYCenter+textInfoSukima)
+    lightBarSizeInfoTxt.center = CGPointMake(setXBaseIndent + setCircleRect.size.width*2.5+sukimaSetX*2,setYCenter+textInfoSukima)
+    
+    let settingPanA = UIPanGestureRecognizer(target: self, action: "setPanGesture:")
+    let settingPanB = UIPanGestureRecognizer(target: self, action: "setPanGesture:")
+    let settingPanC = UIPanGestureRecognizer(target: self, action: "setPanGesture:")
+    scanSpeedSetCircle.addGestureRecognizer(settingPanC)
+    stampSpeedSetCircle.addGestureRecognizer(settingPanB)
+    lightBarSizeSetCircle.addGestureRecognizer(settingPanA)
+    scanSpeedSetCircle.tag = 11
+    stampSpeedSetCircle.tag = 12
+    lightBarSizeSetCircle.tag = 13
+    
+    scanSpeedSetCircle.alpha = 0.5
+    stampSpeedSetCircle.alpha = 0.5
+    lightBarSizeSetCircle.alpha = 0.5
+    
+    scanSpeedInfoTxt.alpha = 0.8
+    stampSpeedInfoTxt.alpha = 0.8
+    lightBarSizeInfoTxt.alpha = 0.8
+    
+    scanSpeedSetCircle.userInteractionEnabled = true
     
     cameraView.frame = CGRectMake(0, 0, screenWidth, screenHeight)
     
-    
-    
     //加速度センサ系の設定
     //motionProcess()
-
- 
-    
     // Do any additional setup after loading the view, typically from a nib.
   }
   
@@ -315,7 +494,7 @@ Play Mode:
   
   
   // カメラの撮影開始
-  @IBAction func CameraStart(sender: AnyObject) {
+func CameraStart(sender: AnyObject) {
     
     let sourceType:UIImagePickerControllerSourceType = UIImagePickerControllerSourceType.Camera
     // カメラが利用可能かチェック
@@ -334,7 +513,7 @@ Play Mode:
   func scanSizeSet(imgView:UIImageView) -> CGRect{
     let imgWidth  = imgView.image!.size.width
     let imgHeight = imgView.image!.size.height
-    let imgFrame =  CGRectMake(lightBarWidth * 9.5, 0, lightBarWidth *  imgWidth / imgHeight * screenHeight, screenHeight)
+    let imgFrame =  CGRectMake((viewerSettingData.2) * 9.5, 0, (viewerSettingData.2) *  imgWidth / imgHeight * screenHeight, screenHeight)
     return imgFrame
 }
   
@@ -355,7 +534,88 @@ Play Mode:
     if let pickedImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
       print("撮影が完了時した時に呼ばれる")
       
+      // 画像の幅・高さの取得
+      Iwidth = pickedImage.size.width
+      Iheight = pickedImage.size.height
+      
+      if (isFirstSet == true ) {
+        print("isFirstSet")
+        
+        let infoframe:CGRect = CGRectMake(buttonMainSize.x/2-screenWidth * 2 / 10,buttonMainSize.y/2,screenWidth * 4 / 10,screenWidth * 4 / 10)
+        let infoSize = CGSizeMake(buttonMainSize.x / 4.2, buttonMainSize.x / 4.2)
+        
+        scanintervalLabel = UILabel(frame:infoframe)
+        scanintervalLabel.frame.size = infoSize
+        scanintervalLabel.center.y = buttonMainSize.y * 6.5 / 10
+        scanintervalLabel.center.x = buttonMainSize.x / 4
+        scanintervalLabel.infoLabelformat()
+        scanintervalLabel.text = ""
+        viewerOpeView.addSubview(scanintervalLabel)
+        
+        
+        stampIntervalLabel = UILabel(frame:infoframe)
+        stampIntervalLabel.frame.size = infoSize
+        stampIntervalLabel.center.y = buttonMainSize.y * 6.5 / 10
+        stampIntervalLabel.center.x = buttonMainSize.x * 2 / 4
+        stampIntervalLabel.infoLabelformat()
+        stampIntervalLabel.text = ""
+        viewerOpeView.addSubview(stampIntervalLabel)
+        
+        
+        lightBarSizeLabel = UILabel(frame:infoframe)
+        lightBarSizeLabel.frame.size = infoSize
+        lightBarSizeLabel.center.y = buttonMainSize.y * 6.5 / 10
+        lightBarSizeLabel.center.x = buttonMainSize.x * 3 / 4
+        lightBarSizeLabel.infoLabelformat()
+        lightBarSizeLabel.text = ""
+        viewerOpeView.addSubview(lightBarSizeLabel)
+        
+        
+        
+
+        //設定ボタン
+        /*
+        viewerInfoButton = UIButton(frame: CGRectMake(buttonMainSize.x/2,buttonMainSize.y/2, screenWidth * 2 / 10,screenWidth * 2 / 10  ))
+        viewerInfoButton.layer.cornerRadius = viewerInfoButton.frame.width / 2
+        viewerInfoButton.center =  CGPointMake(buttonMainSize.x * 0.75,buttonMainSize.y * 0.25)
+        viewerInfoButton.backgroundColor = UIColor.whiteColor()
+        viewerInfoButton.setTitle("Info", forState: UIControlState.Normal)
+        viewerOpeView.addSubview(viewerInfoButton)
+        */
+        
+        
+       editButton.enabled = true
+        
+        // ピンチ
+        let myPinchGesture = UIPinchGestureRecognizer(target: self, action: "pinchGesture:")
+        self.view.addGestureRecognizer(myPinchGesture)
+        //ジェスチャーの追加
+        viewerOpeView.addGestureRecognizer(myPan)
+        viewerOpeView.addGestureRecognizer(swipeLeft)
+        viewerOpeView.addGestureRecognizer(swipeRight)
+        viewerOpeView.addGestureRecognizer(stampTap)
+         viewerOpeView.addGestureRecognizer(doubleTap)
+        
+        
+        self.view.addGestureRecognizer(swipeUp)
+        self.view.addGestureRecognizer(swipeDown)
+        //addImageButton.setTitle( "change Image", forState: UIControlState.Normal)
+        notificationLabel.center = notificationtRedyCenter
+        
+        
+        
+        self.view.addSubview(scanSpeedSetCircle)
+        self.view.addSubview(stampSpeedSetCircle)
+        self.view.addSubview(lightBarSizeSetCircle)
+        self.view.addSubview(scanSpeedInfoTxt)
+        self.view.addSubview(stampSpeedInfoTxt)
+        self.view.addSubview(lightBarSizeInfoTxt)
+        
+        isFirstSet = false
+      }
+
       cameraView.image = pickedImage
+      cameraView.alpha = 0.3
       opeImage = UIImageView(frame:viewerOpeView.frame)
       opeImage.tag = 1
       opeImage.userInteractionEnabled = true
@@ -366,25 +626,29 @@ Play Mode:
       viewerOpeView.addSubview(opeImage)
       //viewerOpeView.sendSubviewToBack(opeImage)
       //viewerOpeView.bringSubviewToFront(viewerInfoButton)
-      viewerOpeView.bringSubviewToFront(intervalLabel)
       
-      // 画像の幅・高さの取得
-      Iwidth = pickedImage.size.width
-      Iheight = pickedImage.size.height
+      viewerOpeView.bringSubviewToFront(scanintervalLabel)
+      viewerOpeView.bringSubviewToFront(stampIntervalLabel)
+      viewerOpeView.bringSubviewToFront(lightBarSizeLabel)
       
       intervaltime = intervalTimeSet(cameraView, speed:1.5)
       print("intervaltime:",intervaltime)
+
       
-      intervalLabel.text = String(format: "%.1f秒",intervaltime)
-   
+      scanintervalLabel.text = String(format: "%.1fsec",intervaltime)
+      stampIntervalLabel.text = "1/60"
+      lightBarSizeLabel.text = String(format: "%.0fpx",(viewerSettingData.2))
+
+      scanSpeedSetCircle.text = scanintervalLabel.text
+      stampSpeedSetCircle.text = stampIntervalLabel.text
+      lightBarSizeSetCircle.text = lightBarSizeLabel.text
+      
       cameraView.frame = scanSizeSet(cameraView)
       
-
       print("frame:x=",cameraView.frame.origin.x,"frame:y=",cameraView.frame.origin.y,"frame:heigth=",cameraView.frame.size.height,"frame:width=",cameraView.frame.size.width)
       
       self.view.bringSubviewToFront(viewerOpeView)
-      self.view.bringSubviewToFront(scanXdataLabel)
-      self.view.bringSubviewToFront(intervalLabel)
+      self.view.bringSubviewToFront(scanintervalLabel)
       
     }
     
@@ -397,7 +661,9 @@ Play Mode:
   override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
     let touch = touches.first
      print("タッチした画像のタグ:",touch?.view?.tag)
-    
+    // タップした座標を取得する
+    let tapLocation = touch!.locationInView(self.view)
+    print("タッチした座標:",tapLocation)
   }
   
   /*
@@ -431,7 +697,7 @@ Play Mode:
   }
 
 
-  func showAlbum(){
+  func showAlbum(sender:UIButton){
     let sourceType:UIImagePickerControllerSourceType = UIImagePickerControllerSourceType.PhotoLibrary
     
     if UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.PhotoLibrary){
@@ -536,15 +802,19 @@ Play Mode:
   }
  */
   
-  func prePlay(style:Int8,mode:Int8,speed:Int8){
+  func prePlay(style:Int8,mode:Int8,speed:Int){
     phaize = 1
     print("phaze:",self.phaize)
+    
     
     
     // アニメーション処理
     let delayTime = dispatch_time(DISPATCH_TIME_NOW, Int64(0.7 * Double(NSEC_PER_SEC)))
     print("prePlay")
     
+    addImageButton.enabled = false
+    myToolBar.alpha = 0
+  
     
     var forValue:CGFloat!
     var fromValue:CGFloat!
@@ -579,6 +849,7 @@ Play Mode:
     self.view.bringSubviewToFront(count2Label)
     self.view.bringSubviewToFront(count3Label)
     self.view.bringSubviewToFront(viewerOpeView)
+    
     
     count1Label.center.x = fromValue * screenWidth
     count2Label.center.x = fromValue * screenWidth
@@ -671,13 +942,14 @@ Play Mode:
 }
   
   
-  func playimage(style:Int8,mode:Int8,speed:Int8){
+  func playimage(style:Int8,mode:Int8,speed:Int){
 
     // アニメーション処理
   print("animation")
   cameraView.frame = scanSizeSet(cameraView)
-  let rightImagePoint :CGFloat! = self.step  * 9.5 - self.cameraView.frame.width - self.lightBarWidth
-  let leftImagePoint : CGFloat! = self.step  * 10 + self.lightBarWidth
+    cameraView.alpha = 1
+  let rightImagePoint :CGFloat! = self.step  * 9.5 - self.cameraView.frame.width - (self.viewerSettingData.2)
+  let leftImagePoint : CGFloat! = self.step  * 10 + (self.viewerSettingData.2)
   
   
   switch style {
@@ -692,16 +964,17 @@ Play Mode:
 }
   
   
-  func scanPlay(startX:CGFloat,endX:CGFloat,mode:Int8,speed:Int8){
+  func scanPlay(startX:CGFloat,endX:CGFloat,mode:Int8,speed:Int){
     cameraView.contentMode = .ScaleToFill
     cameraView.frame.origin.x = startX
     scanPlayAtoB = [startX,endX]
+    intervaltime = intervalTimeSet(cameraView,speed:scanSpeedTable[speed])
     
       UIView.animateWithDuration(0.1,
                                animations: {() -> Void in
                                 //扉オープん
-                                self.frameViewR.frame.origin.x = self.step * 10 + self.lightBarWidth
-                                self.frameViewL.frame.origin.x = -1 * self.lightBarWidth
+                                self.frameViewR.frame.origin.x = self.step * 10 + (self.viewerSettingData.2)
+                                self.frameViewL.frame.origin.x = -1 * (self.viewerSettingData.2)
       },completion: { finished in
         if(mode == 0){
           self.phaize = 2
@@ -730,7 +1003,7 @@ Play Mode:
           print("tapping restart mode")
          // self.view.addGestureRecognizer(self.viewTap)
           self.oneSecondTimer()
-          self.view.addGestureRecognizer(self.swipeDown)
+          //self.view.addGestureRecognizer(self.swipeDown)
         }//ifelse
     })
     
@@ -749,11 +1022,76 @@ Play Mode:
         print("timer_is_Stanby")
         self.oneSecondTimer()
       }
+    }else if (phaize == 9){
+      dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(1.0 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) {
+        self.noActionTimer = self.noActionTimer + 1
+        print("timer:",self.noActionTimer)
+        if(self.noActionTimer > 5){self.notificationOpe(0)}
+        self.oneSecondTimer()
+      }
+    }else if(phaize == 5){
+      noActionTimer = 0
+      dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(1.0 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) {
+        print("timer_is_Stanby")
+        self.oneSecondTimer()
+      }
+ 
+    
+    
     }else{
       noActionTimer = 0
       print("timer Ended")
     }
   }
+  
+  func tenCentiSecondTimer(){
+    if(phaize==0){
+      dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(0.1 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) {
+        self.noActionTimer = self.noActionTimer + 1
+        print("tenCStimer:",self.noActionTimer)
+        if(self.noActionTimer > 3){
+          UIView.animateWithDuration(0.5,
+                                     animations: {() -> Void in
+                                      self.cameraView.alpha = 0.5
+                                      self.viewerOpeView.alpha = 1.0
+                                      self.myToolBar.alpha = 1
+            },completion: { finished in
+              self.barSizeChangeAnimationCompleted = true
+              self.noActionTimer = 0
+              
+          })
+        }else{
+        self.tenCentiSecondTimer()
+        }
+    }//遅延
+    }else if (phaize == 8){
+      
+      dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(0.1 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) {
+        self.noActionTimer = self.noActionTimer + 1
+        print("tenCStimer:",self.noActionTimer)
+       
+   if(self.noActionTimer > 20){
+          UIView.animateWithDuration(0.5,
+                                     animations: {() -> Void in
+                                      self.cameraView.alpha = 0.5
+                                      self.viewerOpeView.center.y =  self.buttonMainCenter.y
+                                      self.myToolBar.alpha = 1
+                                      self.editParametorViewChange(1)
+            },completion: { finished in
+              self.barSizeChangeAnimationCompleted = true
+              self.noActionTimer = 0
+              self.phaize = 0
+              print("phaze:",self.phaize)
+          })
+        }else{
+          self.tenCentiSecondTimer()
+        }
+      }//遅延
+
+      
+    }//if phaize ==8
+  }
+
   func notificationOpe(textNum:Int){
     let text:String
     switch textNum{
@@ -769,7 +1107,6 @@ Play Mode:
   }
   func notificationPopUp(){
     phaize = 5
-    //self.view.addGestureRecognizer(viewTap)
     print("phaze:",self.phaize)
     print("notificationPopUp()")
     UIView.animateWithDuration(0.3,
@@ -807,14 +1144,22 @@ Play Mode:
 }
   
   func backMenu(){
-    self.cameraView.frame.origin.x = self.step * 10 - self.lightBarWidth
+    self.cameraView.frame.origin.x = self.step * 10 - (self.viewerSettingData.2)
     UIView.animateWithDuration(0.3, animations: { () -> Void in
       self.viewerOpeView.alpha = 1.0
-      self.viewerOpeView.center.x = self.screenWidth * 0.5
+      self.myToolBar.alpha = 1
+      
+      self.viewerOpeView.center = self.buttonMainCenter
       //扉オープん
-      self.frameViewR.frame.origin.x = self.step * 10 + self.lightBarWidth
-      self.frameViewL.frame.origin.x = -1 * self.lightBarWidth
+      self.frameViewR.frame.origin.x = self.step * 10 + (self.viewerSettingData.2)
+      self.frameViewL.frame.origin.x = -1 * (self.viewerSettingData.2)
+      
+      self.cameraView.alpha = 0.5
+
       },completion: { finished in
+     
+          self.addImageButton.enabled = true
+        
         self.phaize = 0
         print("phaze:",self.phaize)
     })
@@ -829,7 +1174,7 @@ Play Mode:
       },completion: { finished in
         self.phaize = 3
         print("phaze:",self.phaize)
-        self.cameraView.frame.origin.x = self.step * 10 - self.lightBarWidth
+        self.cameraView.frame.origin.x = self.step * 10 - (self.viewerSettingData.2)
         
     })
   }
@@ -850,51 +1195,109 @@ Play Mode:
     self.closingPlayImage()
   }
   
-  func stampPlay(mode:Int8,speed:Int8){
+  func stampPlay(mode:Int8,speed:Int){
+    switch mode {
+    case 0:
+      self.phaize = 7
+      print("phaze:",self.phaize)
+      
+      //扉を消して画像を表示
+      frameViewR.alpha=0
+      frameViewL.alpha=0
+      //イメージをフルスクリーン
+      cameraView.contentMode = .ScaleAspectFit
+      cameraView.frame = CGRectMake(0,0,screenWidth,screenHeight)
+      
+      
+      //画像表示
+      let time:Double = stampSpeedTable[speed] * Double(NSEC_PER_SEC)
+      print("speed:",stampSpeedTable[Int(speed)])
+      
+      dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(time)), dispatch_get_main_queue()) {
+        //self.cameraView.alpha = 0
+        //self.view.addGestureRecognizer(self.viewTap)
+        self.frameViewR.alpha=1
+        self.frameViewL.alpha=1
+        self.cameraView.contentMode = .ScaleToFill
+        self.phaize = 3
+        print("phaze:",self.phaize)
+      }
+    default:
+      self.phaize = 9
+      print("phaze:",self.phaize)
+      //helpを出すタイマースタート
+      self.oneSecondTimer()
+      //イメージをフルスクリーン
+      cameraView.contentMode = .ScaleAspectFit
+      cameraView.frame = CGRectMake(0,0,screenWidth,screenHeight)
+      stampTime = stampSpeedTable[speed] * Double(NSEC_PER_SEC)
+      
+    }
     
-    self.phaize = 7
-    print("phaze:",self.phaize)
-    
+  }
+  
+  func  stampFire(){
     //扉を消して画像を表示
     frameViewR.alpha=0
     frameViewL.alpha=0
-    //イメージをフルスクリーン
-    cameraView.contentMode = .ScaleAspectFit
-    cameraView.frame = CGRectMake(0,0,screenWidth,screenHeight)
-     print("frame:x=",cameraView.frame.origin.x,"frame:y=",cameraView.frame.origin.y,"frame:heigth=",cameraView.frame.size.height,"frame:width=",cameraView.frame.size.width)
-    //画像表示
-    let time:Double = stampSpeedTable[Int(speed)] * Double(NSEC_PER_SEC)
-    print("speed:",stampSpeedTable[Int(speed)])
-    
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(time)), dispatch_get_main_queue()) {
-    //self.cameraView.alpha = 0
-      //self.view.addGestureRecognizer(self.viewTap)
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(stampTime)), dispatch_get_main_queue()) {
+      
       self.frameViewR.alpha=1
       self.frameViewL.alpha=1
-      self.cameraView.contentMode = .ScaleToFill
-      self.phaize = 3
-      print("phaze:",self.phaize)
-    }
   }
-  
+
+    
+  }
   /*
    ピンチイベントの実装.
    */
   internal func pinchGesture(sender: UIPinchGestureRecognizer){
+    if(phaize == 9 || phaize == 5 || phaize == 7 || phaize == 1 || phaize == 3 || phaize == 4 ){
+      print("pinchを無視")
+    return
+    }
     let firstPoint = sender.scale
     let secondPoint = sender.velocity
+    self.barSizeChanged()
   print("pichi:\\t\(firstPoint)\t\(secondPoint)")
-      lightBarWidth = lightBarWidth + secondPoint / 2   * step
-    if(lightBarWidth < 1){
-      lightBarWidth = 1
-    }else if(lightBarWidth > (screenWidth / 2 - 1)){
-    lightBarWidth = (screenWidth / 2 - 1)
+      (viewerSettingData.2) = (viewerSettingData.2) + secondPoint / 2   * step
+    if((viewerSettingData.2) < 1){
+      (viewerSettingData.2) = 1
+    }else if((viewerSettingData.2) > (screenWidth / 2 - 1)){
+    (viewerSettingData.2) = (screenWidth / 2 - 1)
     }
-    frameViewR.frame.origin.x = step * 10 + lightBarWidth
-    frameViewL.frame.origin.x = -1 * lightBarWidth
-    cameraView.frame.origin.x = step * 10 - lightBarWidth
+    
+    
+    frameViewR.frame.origin.x = step * 10 + (viewerSettingData.2)
+    frameViewL.frame.origin.x = -1 * (viewerSettingData.2)
+    cameraView.frame.origin.x = step * 10 - (viewerSettingData.2)
+    lightBarSizeLabel.text = String(format: "%.0fpx",(viewerSettingData.2))
+    lightBarSizeSetCircle.text = String(format: "%.0fpx",(viewerSettingData.2))
+    
+    
+
   }
   
+  func barSizeChanged(){
+     self.noActionTimer = 0
+    if (barSizeChangeAnimationCompleted == false){return}
+    if (phaize != 0 ){return}
+    print("barSizeChanged-Animation Start")
+    
+    barSizeChangeAnimationCompleted = false
+    UIView.animateWithDuration(0.3,
+                               animations: {() -> Void in
+                                self.cameraView.alpha = 1
+                                self.viewerOpeView.alpha = 0
+                                self.myToolBar.alpha = 0
+      },completion: { finished in
+       // self.barSizeChangeAnimationCompleted = true
+        self.tenCentiSecondTimer()
+    })
+
+  
+  
+  }
 func viewTapped(gestureRecognizer: UITapGestureRecognizer){
   print("viewtapped! phaize:",phaize)
   if(phaize == 3){
@@ -928,14 +1331,38 @@ func viewTapped(gestureRecognizer: UITapGestureRecognizer){
   }else if(phaize == 5){
     //notification表示ちゅう
     self.notificationClose()
-    phaize = 2
+    if(viewerStyleMode[0] != 2){
+      phaize = 2
+      print("phaze:",self.phaize)
+    }else{
+      phaize = 9
+      print("phaze:",self.phaize)
+    }
     print("phaze:",self.phaize)
   }else if(phaize == 6){
     cameraView.layer.removeAllAnimations()
     self.closingPlayImage()
   }else if(phaize == 0){
-  self.showAlbum()
-    
+  print("phase 0 tap")
+  }else if(phaize == 9){
+    // 9 = tap Stamp mode 
+    noActionTimer = 0
+    stampFire()
+  }else if(phaize == 8){
+    UIView.animateWithDuration(0.5,
+                               animations: {() -> Void in
+                                self.cameraView.alpha = 0.5
+                                self.viewerOpeView.center.y =  self.buttonMainCenter.y
+                                self.myToolBar.alpha = 1
+                                self.editParametorViewChange(1)
+                                
+      },completion: { finished in
+        self.barSizeChangeAnimationCompleted = true
+        self.noActionTimer = 0
+        self.phaize = 0
+        print("phaze:",self.phaize)
+    })
+
   }
   
 }
@@ -965,11 +1392,14 @@ func viewTapped(gestureRecognizer: UITapGestureRecognizer){
         if( viewerOpeView.center.x < screenWidth/8){
           print("phaze:",self.phaize)
           
-          self.prePlay(0, mode: modeNum, speed:1)
+          self.prePlay(0, mode: modeNum,speed:(viewerSettingData.0))
+          
+          viewerStyleMode = [0,modeNum]
         }else if(viewerOpeView.center.x > screenWidth * 0.8){
             print("start direction Right, mode =" ,modeNum)
-          self.prePlay(1,mode: modeNum, speed:1)
-        }
+          self.prePlay(1, mode: modeNum,speed:(viewerSettingData.0))
+          viewerStyleMode = [1,modeNum]
+          }
     }else{
       if(phaize == 0){
         print("ボタンバック")
@@ -994,6 +1424,150 @@ func viewTapped(gestureRecognizer: UITapGestureRecognizer){
     }//else
     */
 }
+  
+  
+  /*
+   パン.
+   */
+  internal func setPanGesture(sender: UIPanGestureRecognizer){
+    let movesizeY = Int(sender.translationInView(self.view).y/20 )
+    let ui_label: UILabel = sender.view as! UILabel
+ 
+    noActionTimer = 0
+
+    switch sender.view?.tag{
+    case 11?:
+      print("tag11")
+      var diffPoint:Int = (viewerDataBuffer.0) + movesizeY
+      print("tag11-0",diffPoint)
+      
+      if(diffPoint < 0){
+        diffPoint = 0
+      }else if(diffPoint > 5){
+        diffPoint = 5
+      }
+      print("tag11-1",diffPoint)
+      if(sender.numberOfTouches() > 0){
+        ui_label.text = String(format: "%.2fsec",intervalTimeSet(cameraView,speed:scanSpeedTable[diffPoint]))
+        
+      }else{
+        ui_label.text = String(format: "%.2fsec",intervalTimeSet(cameraView,speed:scanSpeedTable[diffPoint]))
+        (viewerSettingData.0) = diffPoint
+         (viewerDataBuffer.0) = (viewerSettingData.0)
+        scanintervalLabel.text = String(format: "%.2fsec",intervalTimeSet(cameraView,speed:scanSpeedTable[diffPoint]))
+
+      }
+
+      
+    case 12?:
+      print("tag12")
+      var diffPoint:Int = (viewerDataBuffer.1) + movesizeY
+      print("tag12-0",diffPoint)
+      
+      if(diffPoint < 0){
+        diffPoint = 0
+      }else if(diffPoint > 7){
+        diffPoint = 7
+      }
+      print("tag12-1",diffPoint)
+      
+      if(sender.numberOfTouches() > 0){
+        ui_label.text = stampSpStringTable[diffPoint]
+      }else{
+        ui_label.text = stampSpStringTable[diffPoint]
+        (viewerSettingData.1) = diffPoint
+        (viewerDataBuffer.1) = (viewerSettingData.1)
+        stampIntervalLabel.text = stampSpStringTable[diffPoint]
+      }
+    default:
+      print("tag13")
+      var addedPoint:CGFloat = (viewerDataBuffer.2) + sender.translationInView(self.view).y
+      
+      if(addedPoint < 1){
+          addedPoint = 1
+        }else if(addedPoint > (screenWidth / 2 - 1)){
+          addedPoint = (screenWidth / 2 - 1)
+        }
+      print("tag13-(-1)",addedPoint)
+      
+      if(sender.numberOfTouches() > 0){
+       ui_label.text = String(format: "%.0fpx",addedPoint)
+        frameViewR.frame.origin.x = step * 10 + addedPoint
+        frameViewL.frame.origin.x = -1 * addedPoint
+        cameraView.frame.origin.x = step * 10 - addedPoint
+      }else{
+        print("tag13-0",addedPoint)
+        ui_label.text = String(format: "%.0fpx",addedPoint)
+        print("tag13-1",addedPoint)
+        (viewerSettingData.2) = addedPoint
+        
+        (viewerDataBuffer.2) = (viewerSettingData.2)
+        print("tag13-2",(viewerDataBuffer.2))
+        lightBarSizeLabel.text = String(format: "%.0fpx",(viewerDataBuffer.2))
+        print("tag13-3", (viewerSettingData.2))
+        frameViewR.frame.origin.x = step * 10 + (viewerSettingData.2)
+        frameViewL.frame.origin.x = -1 * (viewerSettingData.2)
+        cameraView.frame.origin.x = step * 10 - (viewerSettingData.2)
+        lightBarSizeLabel.text = String(format: "%.0fpx",(viewerSettingData.2))
+        print("buffer:",(viewerDataBuffer.2),"addpoint:",addedPoint)
+
+      }
+
+      
+      break
+    }
+    
+    if(sender.numberOfTouches() > 0){
+      sender.view?.alpha = 1.0
+      sender.view?.backgroundColor = UIColor.blackColor()
+      
+      print("panning:",movesizeY)
+    }else{
+      sender.view?.alpha = 0.5
+      sender.view?.backgroundColor = UIColor.clearColor()
+      print("end:",movesizeY)
+      
+    }
+    
+    
+  }
+  
+  func editParametorViewChange(direction:Int){
+     let setYCenter:CGFloat!
+    if(direction == 0){
+     setYCenter = buttonMainCenter.y}
+    else{
+      setYCenter = self.screenHeight+self.buttonMainSize.x/6
+    }
+    let textInfoSukima:CGFloat = scanSpeedSetCircle.frame.size.height
+  scanSpeedSetCircle.center.y = setYCenter
+  stampSpeedSetCircle.center.y = setYCenter
+  lightBarSizeSetCircle.center.y = setYCenter
+    scanSpeedInfoTxt.center.y = setYCenter  + textInfoSukima
+   stampSpeedInfoTxt.center.y = setYCenter + textInfoSukima
+    lightBarSizeInfoTxt.center.y = setYCenter + textInfoSukima
+  }
+  
+  internal func  editTapped(sender:UIButton){
+    if (barSizeChangeAnimationCompleted == false){return}
+    print(" editTapped")
+    phaize = 8
+     print("phaze:",self.phaize)
+    self.noActionTimer = 0
+    viewerDataBuffer = viewerSettingData
+  barSizeChangeAnimationCompleted = false
+    UIView.animateWithDuration(0.3,
+                               animations: {() -> Void in
+                                self.viewerOpeView.center.y = -1 * self.buttonMainSize.x
+                                self.editParametorViewChange(0)
+                                self.cameraView.alpha = 1
+                                self.myToolBar.alpha = 0
+      },completion: { finished in
+         self.tenCentiSecondTimer()
+    })
+
+  }
+  
   /*
    swipe.
    */
@@ -1006,12 +1580,35 @@ internal func didSwipe(sender: UISwipeGestureRecognizer){
     case 0:
     if sender.direction == .Right {
       print("Right")
-      self.prePlay(1,mode:0,speed:1)
+      self.prePlay(1,mode:0,speed:(viewerSettingData.0))
+      viewerStyleMode = [1,0]
     }
     else if sender.direction == .Left {
       print("Left")
-      prePlay(0, mode: 1,speed:1)
+      prePlay(0, mode: 0,speed:(viewerSettingData.0))
+      viewerStyleMode = [0,0]
+    } else if sender.direction == .Up {
+      print("Up")
+      if (barSizeChangeAnimationCompleted == false){return}
+      print(" editTapped")
+      phaize = 8
+      print("phaze:",self.phaize)
+      self.noActionTimer = 0
+      viewerDataBuffer = viewerSettingData
+      barSizeChangeAnimationCompleted = false
+      UIView.animateWithDuration(0.3,
+                                 animations: {() -> Void in
+                                  self.viewerOpeView.center.y = -1 * self.buttonMainSize.x
+                                  self.editParametorViewChange(0)
+                                  self.cameraView.alpha = 1
+                                  self.myToolBar.alpha = 0
+        },completion: { finished in
+          self.tenCentiSecondTimer()
+      })
+
     }
+
+
     case 2 :
     if(sender.direction == .Down){
       print("did SWipe case2 :swipeDpwn")
@@ -1027,8 +1624,32 @@ internal func didSwipe(sender: UISwipeGestureRecognizer){
       if(sender.direction == .Down){
       print("did SWipe case5 :swipeDpwn")
         self.notificationClose()
-        self.closingTapScanMode()
+        //self.closingTapScanMode()
       }
+    case 8 :
+      if(sender.direction == .Down){
+        print("did SWipe case8 :swipeDpwn")
+        UIView.animateWithDuration(0.5,
+                                   animations: {() -> Void in
+                                    self.cameraView.alpha = 0.5
+                                    self.viewerOpeView.center.y =  self.buttonMainCenter.y
+                                    self.myToolBar.alpha = 1
+                                    self.editParametorViewChange(1)
+                                    
+          },completion: { finished in
+            self.barSizeChangeAnimationCompleted = true
+            self.noActionTimer = 0
+            self.phaize = 0
+            print("phaze:",self.phaize)
+        })
+
+      }
+    case 9 :
+      if(sender.direction == .Down){
+        self.cameraView.contentMode = .ScaleToFill
+        self.backMenu()
+      }
+
     
     default:
       break
@@ -1040,8 +1661,22 @@ internal func didSwipe(sender: UISwipeGestureRecognizer){
    stamp tap
  */
   internal func prePreStampPlay(sender:UITapGestureRecognizer){
-    prePlay(2, mode: 0, speed:1)
+    print(sender.numberOfTouches())
+    if(sender.numberOfTouches() == 1 ){
+    prePlay(2, mode: 0, speed:(viewerSettingData.1))
+      viewerStyleMode = [2,3]
+    }else if(sender.numberOfTouches() == 2){
+      print("ダブルタップ！")
+      prePlay(2, mode: 1, speed:(viewerSettingData.1))
+    viewerStyleMode = [2,4]
+    }
   }
+  
+  internal func tappdDouble(sender:UITapGestureRecognizer){
+    print("ダブルタップ！")
+    prePlay(2, mode: 1, speed:(viewerSettingData.1))
+  }
+
   
   /*ボリュームボタンが押された時の処理*/
  /* 
@@ -1063,5 +1698,45 @@ internal func didSwipe(sender: UISwipeGestureRecognizer){
     }
   }
 */
+  
+  //表示列
+  func numberOfComponentsInPickerView(pickerView: UIPickerView) -> Int {
+    return 2
+  }
+  
+  //表示個数
+  func pickerView(pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+    
+    if (component == 0){
+      return stampSpStringTable.count
+    }else if (component == 1){
+      return stampSpStringTable.count
+    }
+    return 0;
+  }
+  
+  //表示内容
+  func pickerView(pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String {
+      if (component == 0){
+            return stampSpStringTable[row] as String
+        }else if (component == 1){
+            return stampSpStringTable[row] as String
+        }
+    return "";
+  }
+  
+  //選択時
+  func pickerView(pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+    
+    if (component == 0){
+      print("列: \(row)")
+      print("値: \(stampSpStringTable[row])")
+    }else if (component == 1){
+      print("列: \(row)")
+      print("値: \(stampSpStringTable[row])")
+    }
+    
+  }
+  
   
 }
