@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F4048FD31D017EDE008CB927 /* IMG_1485low200pxMetaDataOFF.jpg in Resources */ = {isa = PBXBuildFile; fileRef = F4048FD21D017EDE008CB927 /* IMG_1485low200pxMetaDataOFF.jpg */; };
 		F40FA5E41D0FD8A400A47298 /* info-bluebig100.png in Resources */ = {isa = PBXBuildFile; fileRef = F40FA5DE1D0FD8A400A47298 /* info-bluebig100.png */; };
 		F40FA5E51D0FD8A400A47298 /* photo-camera-1.png in Resources */ = {isa = PBXBuildFile; fileRef = F40FA5DF1D0FD8A400A47298 /* photo-camera-1.png */; };
 		F40FA5E61D0FD8A400A47298 /* photo-camera.png in Resources */ = {isa = PBXBuildFile; fileRef = F40FA5E01D0FD8A400A47298 /* photo-camera.png */; };
@@ -29,6 +28,9 @@
 		F4D1AC781D0FE9F900AAEA0D /* album-1-100px-alpha.png in Resources */ = {isa = PBXBuildFile; fileRef = F4D1AC771D0FE9F900AAEA0D /* album-1-100px-alpha.png */; };
 		F4D1AC7B1D0FECCF00AAEA0D /* edit-1-100px-alpha.png in Resources */ = {isa = PBXBuildFile; fileRef = F4D1AC791D0FECCF00AAEA0D /* edit-1-100px-alpha.png */; };
 		F4D1AC7C1D0FECCF00AAEA0D /* edit-2-100px-alpha.png in Resources */ = {isa = PBXBuildFile; fileRef = F4D1AC7A1D0FECCF00AAEA0D /* edit-2-100px-alpha.png */; };
+		F4D94BC51D17C597003A6493 /* album-1--Green-100px-alpha.png in Resources */ = {isa = PBXBuildFile; fileRef = F4D94BC21D17C597003A6493 /* album-1--Green-100px-alpha.png */; };
+		F4D94BC61D17C597003A6493 /* info-2-Green100px-alpha.png in Resources */ = {isa = PBXBuildFile; fileRef = F4D94BC31D17C597003A6493 /* info-2-Green100px-alpha.png */; };
+		F4D94BC71D17C597003A6493 /* photo-camera-2-Green-100px-alpha.png in Resources */ = {isa = PBXBuildFile; fileRef = F4D94BC41D17C597003A6493 /* photo-camera-2-Green-100px-alpha.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,7 +51,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		F4048FD21D017EDE008CB927 /* IMG_1485low200pxMetaDataOFF.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = IMG_1485low200pxMetaDataOFF.jpg; sourceTree = "<group>"; };
 		F40FA5DE1D0FD8A400A47298 /* info-bluebig100.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "info-bluebig100.png"; sourceTree = "<group>"; };
 		F40FA5DF1D0FD8A400A47298 /* photo-camera-1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "photo-camera-1.png"; sourceTree = "<group>"; };
 		F40FA5E01D0FD8A400A47298 /* photo-camera.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "photo-camera.png"; sourceTree = "<group>"; };
@@ -77,6 +78,9 @@
 		F4D1AC771D0FE9F900AAEA0D /* album-1-100px-alpha.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "album-1-100px-alpha.png"; sourceTree = "<group>"; };
 		F4D1AC791D0FECCF00AAEA0D /* edit-1-100px-alpha.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "edit-1-100px-alpha.png"; sourceTree = "<group>"; };
 		F4D1AC7A1D0FECCF00AAEA0D /* edit-2-100px-alpha.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "edit-2-100px-alpha.png"; sourceTree = "<group>"; };
+		F4D94BC21D17C597003A6493 /* album-1--Green-100px-alpha.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "album-1--Green-100px-alpha.png"; sourceTree = "<group>"; };
+		F4D94BC31D17C597003A6493 /* info-2-Green100px-alpha.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "info-2-Green100px-alpha.png"; sourceTree = "<group>"; };
+		F4D94BC41D17C597003A6493 /* photo-camera-2-Green-100px-alpha.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "photo-camera-2-Green-100px-alpha.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,6 +111,9 @@
 		F40FA5DD1D0FD8A400A47298 /* img */ = {
 			isa = PBXGroup;
 			children = (
+				F4D94BC21D17C597003A6493 /* album-1--Green-100px-alpha.png */,
+				F4D94BC31D17C597003A6493 /* info-2-Green100px-alpha.png */,
+				F4D94BC41D17C597003A6493 /* photo-camera-2-Green-100px-alpha.png */,
 				F42573831D11B0C600DB083C /* info-2-100px-alpha.png */,
 				F4D1AC791D0FECCF00AAEA0D /* edit-1-100px-alpha.png */,
 				F47CCDDF1D112FEF00E6C015 /* info-1-100px-alpha.png */,
@@ -129,7 +136,6 @@
 			isa = PBXGroup;
 			children = (
 				F40FA5DD1D0FD8A400A47298 /* img */,
-				F4048FD21D017EDE008CB927 /* IMG_1485low200pxMetaDataOFF.jpg */,
 				F46A9E611D00377600370B48 /* image-scan */,
 				F46A9E761D00377600370B48 /* image-scanTests */,
 				F46A9E811D00377700370B48 /* image-scanUITests */,
@@ -287,14 +293,16 @@
 				F4D1AC7B1D0FECCF00AAEA0D /* edit-1-100px-alpha.png in Resources */,
 				F4D1AC701D0FDDD400AAEA0D /* photo-camera-2-44px.png in Resources */,
 				F42573841D11B0C600DB083C /* info-2-100px-alpha.png in Resources */,
+				F4D94BC51D17C597003A6493 /* album-1--Green-100px-alpha.png in Resources */,
 				F40FA5E81D0FD8A400A47298 /* repeat-1.png in Resources */,
+				F4D94BC71D17C597003A6493 /* photo-camera-2-Green-100px-alpha.png in Resources */,
 				F40FA5E41D0FD8A400A47298 /* info-bluebig100.png in Resources */,
 				F4D1AC781D0FE9F900AAEA0D /* album-1-100px-alpha.png in Resources */,
 				F40FA5E51D0FD8A400A47298 /* photo-camera-1.png in Resources */,
 				F4D1AC7C1D0FECCF00AAEA0D /* edit-2-100px-alpha.png in Resources */,
 				F40FA5E71D0FD8A400A47298 /* picture.png in Resources */,
+				F4D94BC61D17C597003A6493 /* info-2-Green100px-alpha.png in Resources */,
 				F40FA5E91D0FD8A400A47298 /* settings-5.png in Resources */,
-				F4048FD31D017EDE008CB927 /* IMG_1485low200pxMetaDataOFF.jpg in Resources */,
 				F4D1AC761D0FE2D200AAEA0D /* photo-camera-2-100px-alpha.png in Resources */,
 				F46A9E6D1D00377600370B48 /* LaunchScreen.storyboard in Resources */,
 				F40FA5E61D0FD8A400A47298 /* photo-camera.png in Resources */,

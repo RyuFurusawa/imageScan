@@ -15,8 +15,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   var window: UIWindow?
 
 
+
   func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
     // Override point for customization after application launch.
+    
+    // アプリケーション全体のtintColorを設定する
+    //self.window!.tintColor = UIColor(red:0, green:0.6627,blue:0.6157, alpha:1.0)
+    
+
+    /*
+    // Changing the navigation controller's background colour
+    UITabBar.appearance().barTintColor = UIColor(red: 0.0/255.0, green: 165.0/255.0, blue: 227.0/255.0, alpha: 1.0)
+    
+    // Changing the colour of the bar button items
+    UITabBar.appearance().tintColor = UIColor.redColor()
+    
+    // Changing the tint colour of the tab bar icons
+    UITabBar.appearance().tintColor = UIColor(red: 0.0/255/0, green: 165.0/255.0, blue: 227.0/255.0, alpha: 1.0)
+     */
     return true
   }
 
