@@ -26,7 +26,6 @@ extension UIImage {
 extension  UILabel {
   func countLabelformat(){
     self.textColor = UIColor(red:0, green:0.6627,blue:0.6157, alpha:1.0)
-
     self.backgroundColor = UIColor.blackColor()
     self.layer.masksToBounds = true
     self.layer.cornerRadius = self.frame.width / 2
@@ -43,15 +42,12 @@ extension  UILabel {
     self.layer.borderColor = UIColor(red:0, green:0.6627,blue:0.6157, alpha:1.0)
 .CGColor
     self.layer.borderWidth = self.frame.width / 15
-    self.alpha = 0.7
+    self.alpha = 1.0
     self.textAlignment = NSTextAlignment.Center
     self.userInteractionEnabled = true
     self.numberOfLines = 0
     self.adjustsFontSizeToFitWidth=true
-
-
   }
-
 }
 
 
@@ -60,7 +56,8 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
 
   var screenWidth : CGFloat!
   var screenHeight : CGFloat!
-  
+  var screenShortSize :CGFloat!
+  var screenLargeSize :CGFloat!
   //var scale: CGFloat!
   //var aspectScale: CGFloat! = 1.0
   var step: CGFloat! = 10
@@ -102,8 +99,9 @@ Play Mode:
 */
   
   
-   var viewerSettingData=(Int(4),Int(4),CGFloat(100.0),Int(1),Int(100))
-   var viewerDataBuffer=(Int(4),Int(4),CGFloat(100.0),Int(1),Int(100))
+   var viewerSettingData=(Int(4),Int(4),CGFloat(5.0),Int(5),Int(100))
+   var viewerDataBuffer=(Int(4),Int(4),CGFloat(5.0),Int(5),Int(100))
+   var viewerDefaultSettingData=(Int(4),Int(4),CGFloat(5.0),Int(5),Int(100))
 
   /*Tuple型
    0  Slide speed
@@ -128,7 +126,40 @@ Play Mode:
   var AsignStringTable:[String]=["Single","Loop","Tap\n&\nFIre","Fleeze\n&\nFIre"]
 
   var directionLeft:Bool = true
-  var phaize:Int8! = 0
+  var isPortrait:Bool! //画面の向き
+  var phaize:Int8! = 0{
+    willSet {
+      print("phaize willSet:\(phaize) -> \(newValue)")
+    }
+    didSet {
+      print("phaize　didSet :\(oldValue) -> \(phaize)")
+//      if(phaize > 0 ){
+//        self.viewerOpeView.alpha=0
+//      }else{
+//        self.viewerOpeView.alpha=1
+//      }
+      if(phaize == 1 ){
+        self.count3Label.alpha=1
+        self.count2Label.alpha=1
+        self.count1Label.alpha=1
+      }else{
+        self.count3Label.alpha=0
+        self.count2Label.alpha=0
+        self.count1Label.alpha=0
+      }
+      if phaize == 5 {
+      self.notificationLabel.alpha = 1
+      }else{
+      self.notificationLabel.alpha = 0
+      }
+      if phaize == 8{
+        self.preferenceView.alpha = 1
+      }else{
+        self.preferenceView.alpha = 0
+      }
+
+    }
+  }
   /*:
    0 = menu,
    1 = pre-prePlay,
@@ -155,11 +186,15 @@ Play Mode:
   
   //UIView関連
   var cameraView: UIImageView!//実際に再生に使うビュ
-  var viewerOpeView: UIView! //メインのオペレーションビュー
+  var viewerOpeView: UIView!//メインのオペレーションビュー
   var preferenceView: UIView! //設定画面
+  var mainLabelView: UIView! //メインのラベル系
   var preferenceScrollView:UIScrollView!//スクロールビュー
   var pageControl:UIPageControl!
   var opeImage:UIImageView! //サブビュー
+  
+  var  stmpIconView:UIImageView!
+  var  scanIconView:UIImageView!
   var frameViewR: UIView!
   var frameViewL: UIView!
   var viewerInfoButton:UIButton!//サブビュー　パラメーターセットボタン
@@ -172,6 +207,23 @@ Play Mode:
   var scanintervalLabel: UILabel!
   var stampIntervalLabel:UILabel!
   var lightBarSizeLabel:UILabel!
+  
+  var scanPrefImg:UIImageView!
+  var stmpPrefSetImg:UIImageView!
+  var scanAsignSetImg:UIImageView!
+  var stmpAsignSetImg:UIImageView!
+  
+  var reSetPlayParaCircle:UILabel!
+  
+  var asignScan1FinLabel:UILabel!
+  var asignScan2FinLabel:UILabel!
+  var asignScan3FinLabel:UILabel!
+  var asignStmp1FinLabel:UILabel!
+  var asignStmp2FinLabel:UILabel!
+  var asignStmp3FinLabel:UILabel!
+  var preference1stPageLabel:UILabel!
+  var preference2stPageLabel:UILabel!
+  
   
   var scanSpeedSetCircle:UILabel!
   var scanFlashSetCircle:UILabel!
@@ -253,32 +305,39 @@ Play Mode:
     // Screen Size の取得
     screenWidth = self.view.bounds.width
     screenHeight = self.view.bounds.height
+    print("縦:",screenHeight,"横：",screenWidth)
     if(screenWidth < screenHeight){
       print("縦長！画面")
+      isPortrait = true
       step  = screenWidth / 20
-
-      buttonMainCenter = CGPointMake(screenWidth/2,screenHeight * 2 / 5)
-      buttonMainSize = CGPointMake(screenWidth * 0.8, screenWidth * 0.8)
+      screenShortSize = screenWidth
+      screenLargeSize = screenHeight
       
-      //LightBar サイズの設定 縦：横＝1 : 0.01
-      (viewerSettingData.2) = screenWidth * 0.01
-      print("tuple:",viewerSettingData)
-      viewerDataBuffer = viewerSettingData
+        buttonMainCenter = CGPointMake(screenWidth/2,screenHeight * 2 / 5)
+        buttonMainSize = CGPointMake((screenWidth+(screenHeight/1.777-screenWidth)) * 0.8, (screenWidth+(screenHeight/1.777-screenWidth)) * 0.8)
+      
+      
+//      //LightBar サイズの設定 縦：横＝1 : 0.01
+//      (viewerSettingData.2) = screenWidth * 0.01
+//      print("tuple:",viewerSettingData)
+//      viewerDataBuffer = viewerSettingData
     }else{
       
       print("横長！画面")
+      isPortrait = false
       step  = screenWidth / 30
+      screenShortSize = screenHeight
+      screenLargeSize = screenWidth
 
       buttonMainCenter = CGPointMake(screenWidth/2,screenHeight * 2 / 5)
-      buttonMainSize = CGPointMake(screenHeight * 0.4, screenHeight * 0.4)
+      buttonMainSize = CGPointMake((screenWidth+(screenHeight/1.777-screenWidth)) * 0.8, (screenWidth+(screenHeight/1.777-screenWidth)) * 0.8)
       
       //LightBar サイズの設定 縦：横＝1 : 0.01
-      (viewerSettingData.2) = screenHeight * 0.01
-      print("tuple:",viewerSettingData)
-      viewerDataBuffer = viewerSettingData
+//      (viewerSettingData.2) = screenHeight * 0.01
+//      print("tuple:",viewerSettingData)
+//      viewerDataBuffer = viewerSettingData
     }
 
- 
     //viewの設定
     self.view.backgroundColor=UIColor.blackColor()
     
@@ -322,12 +381,17 @@ Play Mode:
     count2Label =  UILabel(frame:  countRect)
     count1Label =  UILabel(frame:  countRect)
     
+    
     count3Label.text="3"
     count3Label.countLabelformat()
     count2Label.text="2"
     count2Label.countLabelformat()
     count1Label.text="1"
     count1Label.countLabelformat()
+    
+    count3Label.alpha=0
+    count2Label.alpha=0
+    count1Label.alpha=0
     
     //Playボタンのカスタマイズ
     viewerOpeView = UIView(frame: countRect)
@@ -337,6 +401,10 @@ Play Mode:
 //    viewerOpeView.layer.borderWidth = step / 3
     viewerOpeView.layer.cornerRadius = viewerOpeView.frame.width / 2
     viewerOpeView.backgroundColor = UIColor.clearColor()
+    
+    opeImage = UIImageView(frame:viewerOpeView.frame)
+    opeImage.frame.origin=CGPointMake(0,0)
+    viewerOpeView.addSubview(opeImage)
     
     //ToolBarのカスタマイズ
     
@@ -417,12 +485,19 @@ Play Mode:
     frameViewL.alpha=0
     frameViewR.alpha=0
     
+    
+    
+    mainLabelView=UIView(frame:countRect)
+    mainLabelView.userInteractionEnabled = true
     // UIImageViewをViewに追加する.
     self.view.addSubview(cameraView)
     
     //窓をviewに追加
     self.view.addSubview(frameViewR)
     self.view.addSubview(frameViewL)
+    
+    
+    self.view.addSubview(mainLabelView)
     
     //UILabelをViewへ
     self.view.addSubview(count3Label)
@@ -461,21 +536,239 @@ Play Mode:
     self.view.addSubview(stampSpeedBarTop)
     */
     
+    
+    self.preferenceSet()
+  
+    selectedModeLabel = UILabel(frame: CGRectMake(0,0, screenWidth, 88))
+    selectedModeLabel.font=UIFont.systemFontOfSize(CGFloat(26))
+    selectedModeLabel.adjustsFontSizeToFitWidth=true
+    selectedModeLabel.backgroundColor=UIColor.clearColor()
+    selectedModeLabel.textColor = self.view.tintColor
+    selectedModeLabel.textAlignment =  NSTextAlignment.Center
+    
+    mainLabelView.addSubview(selectedModeLabel)
+    
+    //加速度センサ系の設定
+    motionProcess()
+    
+  }
+  
+  override func didReceiveMemoryWarning() {
+    super.didReceiveMemoryWarning()
+    // Dispose of any resources that can be recreated.
+  }
+  
+  override func viewDidAppear(animated: Bool) {
+    
+    // 端末の向きがかわったらNotificationを呼ばす設定.
+    NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.onOrientationChange(_:)), name: UIDeviceOrientationDidChangeNotification, object: nil)
+    
+    NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.onOrientationChange(_:)), name: UIDeviceOrientationDidChangeNotification, object: nil)
+
+  }
+  override func shouldAutorotate() -> Bool{
+    if(phaize != 0 && phaize != 8  ){
+    return false
+    }else{
+      
+      print("呼ばれてるshouldAutorotate()phaize=",phaize)
+    return true
+    }
+  }
+  // 端末の向きがかわったら呼び出される.
+  func onOrientationChange(notification: NSNotification){
+    
+    if(phaize != 0 && phaize != 8  ){
+      return
+    }
+    
+    print("onOrientationChange phaize=",phaize)
+    // 現在のデバイスの向きを取得.
+    let deviceOrientation: UIDeviceOrientation!  = UIDevice.currentDevice().orientation
+    
+    // 向きの判定.
+    if UIDeviceOrientationIsLandscape(deviceOrientation) {
+      
+      //横向きの判定.
+      //向きに従って位置を調整する.
+      if (isPortrait == true ) {
+      print( "Landscape")
+      isPortrait = false
+      rePosittion()
+      }else{
+      print ("画面の回転をキャンセル")
+      }
+      
+    } else if UIDeviceOrientationIsPortrait(deviceOrientation){
+      
+      //縦向きの判定.
+      //向きに従って位置を調整する.
+      if (isPortrait != true ) {
+        
+        print("Portrait")
+        isPortrait = true
+        rePosittion()
+      }else{
+        print ("画面の回転をキャンセル")
+      }
+    }
+  }
+  
+  func rePosittion(){
+    // Screen Size の取得
+    screenWidth = self.view.bounds.width
+    screenHeight = self.view.bounds.height
+    
+    print("縦:",screenHeight,"横：",screenWidth)
+    if(screenWidth < screenHeight){
+      print("縦長！画面")
+      step  = screenWidth / 20
+      screenShortSize = screenWidth
+      screenLargeSize = screenHeight
+      
+      buttonMainCenter = CGPointMake(screenWidth/2,screenHeight * 2 / 5)
+      buttonMainSize = CGPointMake((screenWidth+(screenHeight/1.777-screenWidth)) * 0.8, (screenWidth+(screenHeight/1.777-screenWidth)) * 0.8)
+      
+    }else{
+      
+      print("横長！画面")
+      step  = screenWidth / 30
+      screenShortSize = screenHeight
+      screenLargeSize = screenWidth
+      
+      buttonMainCenter = CGPointMake(screenWidth/2,screenHeight * 2 / 5)
+      buttonMainSize = CGPointMake((screenWidth+(screenHeight/1.777-screenWidth)) * 0.8, (screenWidth+(screenHeight/1.777-screenWidth)) * 0.8)
+      
+    }
+    
+    if(phaize != 0 && phaize != 8 || isFirstSet != false ){
+      cameraView.frame = CGRectMake(0,0,screenWidth,screenHeight)
+    }else{
+        scanSizeFit(cameraView)
+      
+    }
+    let countRect:CGRect=CGRectMake(screenWidth, screenHeight * 2 / 5 - buttonMainSize.x/2, buttonMainSize.x, buttonMainSize.y)
+    let countRectRadius =  countRect.width / 2
+    
+    count3Label.frame = countRect
+    count3Label.layer.cornerRadius = countRectRadius
+    count2Label.frame = countRect
+    count2Label.layer.cornerRadius = countRectRadius
+    count1Label.frame = countRect
+    count1Label.layer.cornerRadius = countRectRadius
+    
+    selectedModeLabel.frame=CGRectMake(0,0, screenWidth, 88)
+    
+    mainLabelView.frame = self.view.frame
+    
+     print("viewerOpeView変更")
+    UIView.animateWithDuration(0.3,
+                               animations: {() -> Void in
+                                self.viewerOpeView.frame = countRect
+                                self.viewerOpeView.center=self.buttonMainCenter
+                                self.viewerOpeView.layer.cornerRadius = countRectRadius
+                                self.opeImage.frame.size = self.viewerOpeView.frame.size
+      })
+      
+      if(phaize == 8){
+        viewerOpeView.center.y=buttonMainCenter.y-screenHeight
+        mainLabelView.center.y=mainLabelView.center.y-screenHeight
+      }
+
+    
+    notificationLabel.frame = countRect
+    notificationLabel.layer.cornerRadius = notificationLabel.frame.width / 2
+
+    
+    myToolBar.frame = CGRectMake(0, screenHeight - step * 3, screenWidth, step * 3)
+    if( phaize < 9 && ( phaize != 8 || phaize != 2 || phaize != 6 || phaize != 5 )){
+        print("frameViewのサイズ変更")
+        frameViewR.frame = CGRectMake(screenWidth/2+(viewerSettingData.2)/2,0,screenWidth/2,screenHeight)
+        frameViewL.frame = CGRectMake(-1*(viewerSettingData.2)/2,0,screenWidth/2,screenHeight)
+    }
+    
+    preferenceReSet()
+    
+    if isFirstSet == false{
+      notificationtRedyCenter = CGPointMake(screenWidth/2,screenHeight + buttonMainSize.x/2)
+      notificationLabel.center = notificationtRedyCenter
+       mainInfoLabelformat(scanintervalLabel,imgView:scanIconView,num:0)
+       mainInfoLabelformat( stampIntervalLabel,imgView:stmpIconView,num:1)
+      //設定ボタン
+      viewerInfoButton.frame = CGRectMake(screenWidth-55,11,44,44)
+
+      
+    }else{
+      
+    notificationLabel.center = buttonMainCenter
+    }
+    
+  }
+  
+  
+  func preferenceLabelformat(label:UILabel,tagnum:Int){
+    label.textColor = UIColor(red:0, green:0.6627,blue:0.6157, alpha:1.0)
+    label.backgroundColor = UIColor.clearColor()
+    label.layer.masksToBounds = true
+    label.layer.cornerRadius = label.frame.width / 2
+    label.layer.borderColor = UIColor(red:0, green:0.6627,blue:0.6157, alpha:1.0)
+      .CGColor
+    label.layer.borderWidth = label.frame.width / 15
+    label.alpha = 1.0
+    label.textAlignment = NSTextAlignment.Center
+    label.userInteractionEnabled = true
+    label.numberOfLines = 0
+    label.adjustsFontSizeToFitWidth=true
+    label.tag = tagnum
+    label.addGestureRecognizer( UIPanGestureRecognizer(target:self, action: #selector(ViewController.setPanGesture(_:))))
+     label.addGestureRecognizer( UITapGestureRecognizer(target:self, action: #selector(ViewController.setTapGesture(_:))))
+    preferenceScrollView.addSubview(label)
+  }
+  
+  func mainInfoLabelformat(label:UILabel,imgView:UIImageView,num:Int){
+    print("infoLabelformat 0")
+    mainInfoLabelFrameSet(label,imgView:imgView,num:num)
+    label.textColor = UIColor(red:0, green:0.6627,blue:0.6157, alpha:1.0)
+    label.backgroundColor = UIColor.clearColor()
+    label.alpha = 0.5
+    label.font=UIFont.boldSystemFontOfSize(16)
+    label.textAlignment = NSTextAlignment.Center
+    label.userInteractionEnabled = true
+    label.numberOfLines = 0
+    label.adjustsFontSizeToFitWidth=true
+    mainLabelView.addSubview(label)
+    
+}
+  func mainInfoLabelFrameSet(label:UILabel,imgView:UIImageView,num:Int) {
+    let minWidth = screenWidth*6/10
+    let padding = (screenWidth-minWidth)/2
+
+    label.frame = CGRectMake(padding+CGFloat(num)*minWidth/2 ,screenHeight*0.75,minWidth/2,buttonMainSize.x / 3)
+    
+    let labelSize = buttonMainSize.x / 4.5
+    let imgCenter = CGPointMake(label.center.x, label.center.y - label.frame.height * 3 / 10)
+    imgView.frame=CGRectMake(0,0,labelSize,labelSize)
+    imgView.center=imgCenter
+  }
+  
+
+  func preferenceSet(){
+    
     preferenceView = UIView(frame:CGRectMake(0,screenHeight,screenWidth,screenHeight))
     // ScrollViewを取得する.
     preferenceScrollView = UIScrollView(frame: self.view.frame)
     // ページ数を定義する.
     let pageSize = 2
-
+    
     // 縦方向と、横方向のインディケータを非表示にする.
-   preferenceScrollView.showsHorizontalScrollIndicator = false;
-   preferenceScrollView.showsVerticalScrollIndicator = false
+    preferenceScrollView.showsHorizontalScrollIndicator = false;
+    preferenceScrollView.showsVerticalScrollIndicator = false
     // ページングを許可する.
-   preferenceScrollView.pagingEnabled = true
+    preferenceScrollView.pagingEnabled = true
     //preferenceScrollViewのデリゲートを設定する.
-   preferenceScrollView.delegate = self
+    preferenceScrollView.delegate = self
     // スクロールの画面サイズを指定する.
-   preferenceScrollView.contentSize = CGSizeMake(CGFloat(pageSize) * screenWidth, 0)
+    preferenceScrollView.contentSize = CGSizeMake(CGFloat(pageSize) * screenWidth, 0)
     // ScrollViewをViewに追加する.
     preferenceView.addSubview(preferenceScrollView)
     
@@ -488,164 +781,243 @@ Play Mode:
     pageControl.userInteractionEnabled = false
     preferenceView.addSubview(pageControl)
     
+    preferenceCircleRect = CGRectMake(0,0,screenShortSize/4,screenShortSize/4)
+    //BUttonSizeの1/3サイズ
     
-    preferenceCircleRect = CGRectMake(0,0,buttonMainSize.x/3.3,buttonMainSize.x/3.3)
+    print("preferenceCircleの７つ分のサイズが縦サイズに収まるか？",screenHeight-preferenceCircleRect.height*7)
+    if(screenHeight-preferenceCircleRect.height*7 < 0){
+      preferenceCircleRect = CGRectMake(0,0,screenLargeSize/8,screenLargeSize/8)
+      print("preferenceCircle調整後、",preferenceCircleRect.height)
+    }
+    
+    scanPrefImg = UIImageView(frame:preferenceCircleRect)
+    scanPrefImg.center =  preferenceGridCenterSet(0,ynum:0)
+    scanPrefImg.image = UIImage(named: "slide-150px.png")
+    scanPrefImg.alpha = 1.0
+    preferenceScrollView.addSubview(scanPrefImg)
+    
+     stmpPrefSetImg = UIImageView(frame:preferenceCircleRect)
+    stmpPrefSetImg.center =  preferenceGridCenterSet(0,ynum:1)
+    stmpPrefSetImg.image = UIImage(named: "stmp-150px.png")
+    stmpPrefSetImg.alpha = 1.0
+    preferenceScrollView.addSubview(stmpPrefSetImg)
+    
+    /*
+    let scanPrefLabel = UILabel(frame:preferenceCircleRect)
+    // scanPrefLabel.text = "S\nL\nI\nD\nE"
+    scanPrefLabel.text = "Slide Play"
+    scanPrefLabel.adjustsFontSizeToFitWidth=true
+    scanPrefLabel.infoLabelformat()
+    scanPrefLabel.layer.borderWidth = 0
+    scanPrefLabel.center = preferenceGridCenterSet(0,ynum:0)
+    scanPrefLabel.center.y = (scanPrefLabel.center.y)+(preferenceCircleRect.size.height*0.4)
+    preferenceScrollView.addSubview( scanPrefLabel)
+    
+    let   stampPrefLabel = UILabel(frame:preferenceCircleRect)
+    // stampPrefLabel.text = "S\nL\nI\nD\nE"
+    stampPrefLabel.text = "Stamp Play"
+    stampPrefLabel.adjustsFontSizeToFitWidth=true
+    stampPrefLabel.infoLabelformat()
+    stampPrefLabel.layer.borderWidth = 0
+    stampPrefLabel.center = preferenceGridCenterSet(0,ynum:1)
+    stampPrefLabel.center.y = (stampPrefLabel.center.y)+(preferenceCircleRect.size.height*0.4)
+    preferenceScrollView.addSubview( stampPrefLabel)
+    */
+    
+    
     scanSpeedSetCircle = UILabel(frame:preferenceCircleRect)
-    scanSpeedSetCircle.text = "1sec"
-    scanSpeedSetCircle.infoLabelformat()
-    scanSpeedSetCircle.center = preferenceGridCenterSet(0,ynum:0)
-    scanSpeedSetCircle.tag = 11
-    scanSpeedSetCircle.addGestureRecognizer( UIPanGestureRecognizer(target: self, action: #selector(ViewController.setPanGesture(_:))))
-    scanSpeedSetCircle.alpha = 0.5
-    preferenceScrollView.addSubview(scanSpeedSetCircle)
+    scanSpeedSetCircle.text = "Speed"
+    preferenceLabelformat(scanSpeedSetCircle,tagnum: 11)
+    scanSpeedSetCircle.center = preferenceGridCenterSet(1,ynum:0)
     
-    scanFlashSetCircle = UILabel(frame:preferenceCircleRect)
-    scanFlashSetCircle.text = "1sec"
-    scanFlashSetCircle.infoLabelformat()
-    scanFlashSetCircle.center = preferenceGridCenterSet(1,ynum:0)
-    scanFlashSetCircle.tag = 12
-    scanFlashSetCircle.addGestureRecognizer( UIPanGestureRecognizer(target: self, action: #selector(ViewController.setPanGesture(_:))))
-    scanFlashSetCircle.alpha = 0.5
-    preferenceScrollView.addSubview(scanFlashSetCircle)
-    
+    /*
+     scanFlashSetCircle = UILabel(frame:preferenceCircleRect)
+     scanFlashSetCircle.text = "Flash Rate"
+     scanFlashSetCircle.infoLabelformat()
+     scanFlashSetCircle.center = preferenceGridCenterSet(1,ynum:0)
+     scanFlashSetCircle.tag = 12
+     scanFlashSetCircle.addGestureRecognizer( UIPanGestureRecognizer(target: self, action: #selector(ViewController.setPanGesture(_:))))
+     scanFlashSetCircle.alpha = 0.5
+     preferenceScrollView.addSubview(scanFlashSetCircle)
+     */
     lightBarSizeSetCircle = UILabel(frame:preferenceCircleRect)
-    lightBarSizeSetCircle.text = "20px"
-    lightBarSizeSetCircle.infoLabelformat()
+    lightBarSizeSetCircle.text = "BarSize"
+    preferenceLabelformat(lightBarSizeSetCircle,tagnum: 13)
     lightBarSizeSetCircle.center =  preferenceGridCenterSet(2,ynum:0)
-    lightBarSizeSetCircle.tag = 13
-    lightBarSizeSetCircle.addGestureRecognizer( UIPanGestureRecognizer(target: self, action: #selector(ViewController.setPanGesture(_:))))
-    lightBarSizeSetCircle.alpha = 0.5
-    preferenceScrollView.addSubview(lightBarSizeSetCircle)
-    
-    let  preferenceScanLabel = UILabel(frame:preferenceCircleRect)
-    //preferenceScanLabel.text = "S\nL\nI\nD\nE"
-    preferenceScanLabel.text = "Slide Play"
-    preferenceScanLabel.adjustsFontSizeToFitWidth=true
-    preferenceScanLabel.infoLabelformat()
-    preferenceScanLabel.layer.borderWidth = 0
-    preferenceScanLabel.center = preferenceGridCenterSet(1,ynum:0)
-    preferenceScanLabel.center.y = (preferenceScanLabel.center.y)-(preferenceCircleRect.size.height*0.7)
-    preferenceScrollView.addSubview(preferenceScanLabel)
-    
-
     
     
     stampSpeedSetCircle = UILabel(frame:preferenceCircleRect)
-    stampSpeedSetCircle.text = "1/60"
-    stampSpeedSetCircle.infoLabelformat()
-    stampSpeedSetCircle.center = preferenceGridCenterSet(0,ynum:1)
-    stampSpeedSetCircle.tag = 14
-    stampSpeedSetCircle.addGestureRecognizer( UIPanGestureRecognizer(target: self, action: #selector(ViewController.setPanGesture(_:))))
-    stampSpeedSetCircle.alpha = 0.5
-    preferenceScrollView.addSubview(stampSpeedSetCircle)
+    stampSpeedSetCircle.text = "Speed"
+    preferenceLabelformat(stampSpeedSetCircle,tagnum: 14)
+    stampSpeedSetCircle.center = preferenceGridCenterSet(1,ynum:1)
     
     stampSizeSetCircle = UILabel(frame:preferenceCircleRect)
-    stampSizeSetCircle.text = "100%"
-    stampSizeSetCircle.infoLabelformat()
-    stampSizeSetCircle.center = preferenceGridCenterSet(1,ynum:1)
-    stampSizeSetCircle.tag = 15
-    stampSizeSetCircle.addGestureRecognizer( UIPanGestureRecognizer(target: self, action: #selector(ViewController.setPanGesture(_:))))
-    stampSizeSetCircle.alpha = 0.5
-    preferenceScrollView.addSubview(stampSizeSetCircle)
+    stampSizeSetCircle.text = "Scale Size "
+    preferenceLabelformat(stampSizeSetCircle,tagnum: 15)
+    stampSizeSetCircle.center = preferenceGridCenterSet(2,ynum:1)
     
-    let  preferenceStampLabel = UILabel(frame:preferenceCircleRect)
-    //preferenceStampLabel.text = "S\nT\nA\nM\nP"
-    preferenceStampLabel.text = "Stamp play"
-    preferenceStampLabel.infoLabelformat()
-    preferenceStampLabel.layer.borderWidth = 0
-    preferenceStampLabel.center = preferenceGridCenterSet(1,ynum:1)
-    preferenceStampLabel.center.y = (preferenceStampLabel.center.y)-(preferenceCircleRect.size.height*0.7)
-    preferenceScrollView.addSubview(preferenceStampLabel)
     
+    reSetPlayParaCircle  = UILabel(frame:preferenceCircleRect)
+    reSetPlayParaCircle.text = "reset"
+    preferenceLabelformat(reSetPlayParaCircle,tagnum: 23)
+    reSetPlayParaCircle.frame.size = CGSizeMake(reSetPlayParaCircle .frame.width*0.75, reSetPlayParaCircle.frame.height*0.75)
+    reSetPlayParaCircle.layer.borderWidth=reSetPlayParaCircle.layer.borderWidth * 0.75
+    reSetPlayParaCircle.layer.cornerRadius = reSetPlayParaCircle .frame.width / 2
+    reSetPlayParaCircle.center = preferenceGridCenterSet(1,ynum:2)
+    
+    
+   scanAsignSetImg = UIImageView(frame:preferenceCircleRect)
+    scanAsignSetImg.image = UIImage(named: "slide-150px.png")
+    scanAsignSetImg.frame.size = CGSizeMake(scanAsignSetImg.frame.width * 0.7, scanAsignSetImg.frame.height*0.7)
+    scanAsignSetImg.center = asignGridSet(4,ynum:1)
+    scanAsignSetImg.alpha = 1.0
+    preferenceScrollView.addSubview(scanAsignSetImg)
+    
+    stmpAsignSetImg = UIImageView(frame:preferenceCircleRect)
+    stmpAsignSetImg.frame.size = CGSizeMake(stmpAsignSetImg.frame.width * 0.7, stmpAsignSetImg.frame.height*0.7)
+    stmpAsignSetImg.center = asignGridSet(4,ynum:3)
+    stmpAsignSetImg.image = UIImage(named: "stmp-150px.png")
+    stmpAsignSetImg.alpha = 1.0
+    preferenceScrollView.addSubview(stmpAsignSetImg)
+    
+    /*
+    let scanAsignLabel = UILabel(frame:preferenceCircleRect)
+    // scanAsignLabel.text = "S\nL\nI\nD\nE"
+    scanAsignLabel.text = "Slide"
+    scanAsignLabel.adjustsFontSizeToFitWidth=true
+    scanAsignLabel.infoLabelformat()
+    scanAsignLabel.font = UIFont.systemFontOfSize(CGFloat(12))
+    scanAsignLabel.layer.borderWidth = 0
+    scanAsignLabel.center = asignGridSet(4,ynum:1)
+    scanAsignLabel.center.y = (scanAsignLabel.center.y)+(preferenceCircleRect.size.height*0.3)
+    preferenceScrollView.addSubview( scanAsignLabel)
+    
+    let   stampAsignLabel = UILabel(frame:preferenceCircleRect)
+    // stampAsignLabel.text = "S\nL\nI\nD\nE"
+    stampAsignLabel.text = "Stamp"
+    stampAsignLabel.adjustsFontSizeToFitWidth=true
+    stampAsignLabel.infoLabelformat()
+    stampAsignLabel.font = UIFont.systemFontOfSize(CGFloat(12))
+    stampAsignLabel.layer.borderWidth = 0
+    stampAsignLabel.center = asignGridSet(4,ynum:3)
+    stampAsignLabel.center.y = (stampAsignLabel.center.y)+(preferenceCircleRect.size.height*0.3)
+    preferenceScrollView.addSubview( stampAsignLabel)
+    */
+    
+    
+    asignScan1FinLabel = UILabel(frame:preferenceCircleRect)
+    //  asignScan1FinLabel.text = "S\nL\nI\nD\nE"
+    asignScan1FinLabel.text = "1 Fing Swipe"
+    asignScan1FinLabel.adjustsFontSizeToFitWidth=true
+    asignScan1FinLabel.infoLabelformat()
+    asignScan1FinLabel.font = UIFont.systemFontOfSize(CGFloat(12))
+    asignScan1FinLabel.layer.borderWidth = 0
+    asignScan1FinLabel.center = asignGridSet(3,ynum:2)
+    asignScan1FinLabel.center.y = (asignScan1FinLabel.center.y)-(preferenceCircleRect.size.height*0.6)
+    preferenceScrollView.addSubview(asignScan1FinLabel)
+    
+    asignScan2FinLabel = UILabel(frame:preferenceCircleRect)
+    //  asignScan2FinLabel.text = "S\nL\nI\nD\nE"
+    asignScan2FinLabel.text = "2 Fing Swipe"
+    asignScan2FinLabel.adjustsFontSizeToFitWidth=true
+    asignScan2FinLabel.infoLabelformat()
+    asignScan2FinLabel.font = UIFont.systemFontOfSize(CGFloat(12))
+    asignScan2FinLabel.layer.borderWidth = 0
+    asignScan2FinLabel.center = asignGridSet(4,ynum:2)
+    asignScan2FinLabel.center.y = (asignScan2FinLabel.center.y)-(preferenceCircleRect.size.height*0.6)
+    preferenceScrollView.addSubview(asignScan2FinLabel)
+   
+    asignScan3FinLabel = UILabel(frame:preferenceCircleRect)
+    //  asignScan3FinLabel.text = "S\nL\nI\nD\nE"
+    asignScan3FinLabel.text = "3 Fing Swipe"
+    asignScan3FinLabel.adjustsFontSizeToFitWidth=true
+    asignScan3FinLabel.infoLabelformat()
+    asignScan3FinLabel.font = UIFont.systemFontOfSize(CGFloat(12))
+    asignScan3FinLabel.layer.borderWidth = 0
+    asignScan3FinLabel.center = asignGridSet(5,ynum:2)
+    asignScan3FinLabel.center.y = (asignScan3FinLabel.center.y)-(preferenceCircleRect.size.height*0.6)
+    preferenceScrollView.addSubview(asignScan3FinLabel)
     
     
     scan1fAsignSetCircle = UILabel(frame:preferenceCircleRect)
     scan1fAsignSetCircle.text = AsignStringTable[AsignData[0]]
-    scan1fAsignSetCircle.infoLabelformat()
-    scan1fAsignSetCircle.center = preferenceGridCenterSet(3,ynum:0)
-    scan1fAsignSetCircle.tag = 17
-    scan1fAsignSetCircle.addGestureRecognizer( UIPanGestureRecognizer(target: self, action: #selector(ViewController.setPanGesture(_:))))
-    scan1fAsignSetCircle.alpha = 0.5
-    preferenceScrollView.addSubview(scan1fAsignSetCircle)
+    preferenceLabelformat(scan1fAsignSetCircle,tagnum: 17)
+    scan1fAsignSetCircle.center = asignGridSet(3,ynum:2)
     
     scan2fAsignSetCircle = UILabel(frame:preferenceCircleRect)
     scan2fAsignSetCircle.text = AsignStringTable[AsignData[1]]
-    scan2fAsignSetCircle.infoLabelformat()
-    scan2fAsignSetCircle.center = preferenceGridCenterSet(4,ynum:0)
-    scan2fAsignSetCircle.tag = 18
-    scan2fAsignSetCircle.addGestureRecognizer( UIPanGestureRecognizer(target: self, action: #selector(ViewController.setPanGesture(_:))))
-    scan2fAsignSetCircle.alpha = 0.5
-    preferenceScrollView.addSubview(scan2fAsignSetCircle)
+    preferenceLabelformat(scan2fAsignSetCircle,tagnum: 18)
+    scan2fAsignSetCircle.center = asignGridSet(4,ynum:2)
     
     scan3fAsignSetCircle = UILabel(frame:preferenceCircleRect)
     scan3fAsignSetCircle.text = AsignStringTable[AsignData[2]]
-    scan3fAsignSetCircle.infoLabelformat()
-    scan3fAsignSetCircle.center =  preferenceGridCenterSet(5,ynum:0)
-    scan3fAsignSetCircle.tag = 19
-    scan3fAsignSetCircle.addGestureRecognizer( UIPanGestureRecognizer(target: self, action: #selector(ViewController.setPanGesture(_:))))
-    scan3fAsignSetCircle.alpha = 0.5
-    preferenceScrollView.addSubview(scan3fAsignSetCircle)
-    
-       let   scanAsignLabel = UILabel(frame:preferenceCircleRect)
-    // scanAsignLabel.text = "S\nL\nI\nD\nE"
-    scanAsignLabel.text = "Slide Play"
-    scanAsignLabel.adjustsFontSizeToFitWidth=true
-    scanAsignLabel.infoLabelformat()
-    scanAsignLabel.layer.borderWidth = 0
-    scanAsignLabel.center = preferenceGridCenterSet(4,ynum:0)
-    scanAsignLabel.center.y = (scanAsignLabel.center.y)-(preferenceCircleRect.size.height*0.7)
-    preferenceScrollView.addSubview( scanAsignLabel)
-    
-
-    
-    
-    
+    preferenceLabelformat(scan3fAsignSetCircle,tagnum: 19)
+    scan3fAsignSetCircle.center = asignGridSet(5,ynum:2)
     
     stamp1fAsignSetCircle = UILabel(frame:preferenceCircleRect)
     stamp1fAsignSetCircle.text = AsignStringTable[AsignData[3]]
-    stamp1fAsignSetCircle.infoLabelformat()
-    stamp1fAsignSetCircle.center = preferenceGridCenterSet(3,ynum:1)
-    stamp1fAsignSetCircle.tag = 20
-    stamp1fAsignSetCircle.addGestureRecognizer( UIPanGestureRecognizer(target: self, action: #selector(ViewController.setPanGesture(_:))))
-    stamp1fAsignSetCircle.alpha = 0.5
-    preferenceScrollView.addSubview(stamp1fAsignSetCircle)
+    preferenceLabelformat(stamp1fAsignSetCircle,tagnum: 20)
+    stamp1fAsignSetCircle.center =  asignGridSet(3,ynum:4)
     
     stamp2fAsignSetCircle = UILabel(frame:preferenceCircleRect)
     stamp2fAsignSetCircle.text = AsignStringTable[AsignData[4]]
-    stamp2fAsignSetCircle.infoLabelformat()
-    stamp2fAsignSetCircle.center = preferenceGridCenterSet(4,ynum:1)
-    stamp2fAsignSetCircle.tag = 21
-    stamp2fAsignSetCircle.addGestureRecognizer( UIPanGestureRecognizer(target: self, action: #selector(ViewController.setPanGesture(_:))))
-    stamp2fAsignSetCircle.alpha = 0.5
-    preferenceScrollView.addSubview(stamp2fAsignSetCircle)
+    preferenceLabelformat(stamp2fAsignSetCircle,tagnum: 21)
+    stamp2fAsignSetCircle.center = asignGridSet(4,ynum:4)
     
     stamp3fAsignSetCircle = UILabel(frame:preferenceCircleRect)
     stamp3fAsignSetCircle.text = AsignStringTable[AsignData[5]]
-    stamp3fAsignSetCircle.infoLabelformat()
-    stamp3fAsignSetCircle.center =  preferenceGridCenterSet(5,ynum:1)
-    stamp3fAsignSetCircle.tag = 22
-    stamp3fAsignSetCircle.addGestureRecognizer( UIPanGestureRecognizer(target: self, action: #selector(ViewController.setPanGesture(_:))))
-    stamp3fAsignSetCircle.alpha = 0.5
-    preferenceScrollView.addSubview(stamp3fAsignSetCircle)
+    preferenceLabelformat(stamp3fAsignSetCircle,tagnum: 22)
+    stamp3fAsignSetCircle.center = asignGridSet(5,ynum:4)
+    
+   asignStmp1FinLabel = UILabel(frame:preferenceCircleRect)
+    //  asignStmp1FinLabel.text = "S\nL\nI\nD\nE"
+    asignStmp1FinLabel.text = "1 Fing Tap"
+    asignStmp1FinLabel.adjustsFontSizeToFitWidth=true
+    asignStmp1FinLabel.infoLabelformat()
+    asignStmp1FinLabel.font = UIFont.systemFontOfSize(CGFloat(12))
+    asignStmp1FinLabel.layer.borderWidth = 0
+    asignStmp1FinLabel.center = asignGridSet(3,ynum:4)
+    asignStmp1FinLabel.center.y = (asignStmp1FinLabel.center.y)-(preferenceCircleRect.size.height*0.6)
+    preferenceScrollView.addSubview(asignStmp1FinLabel)
+    
+    asignStmp2FinLabel = UILabel(frame:preferenceCircleRect)
+    //  asignStmp2FinLabel.text = "S\nL\nI\nD\nE"
+    asignStmp2FinLabel.text = "2 Fing Tap"
+    asignStmp2FinLabel.adjustsFontSizeToFitWidth=true
+    asignStmp2FinLabel.infoLabelformat()
+    asignStmp2FinLabel.font = UIFont.systemFontOfSize(CGFloat(12))
+    asignStmp2FinLabel.layer.borderWidth = 0
+    asignStmp2FinLabel.center = asignGridSet(4,ynum:4)
+    asignStmp2FinLabel.center.y = (asignStmp2FinLabel.center.y)-(preferenceCircleRect.size.height*0.6)
+    preferenceScrollView.addSubview(asignStmp2FinLabel)
+    
+     asignStmp3FinLabel = UILabel(frame:preferenceCircleRect)
+    //  asignStmp3FinLabel.text = "S\nL\nI\nD\nE"
+    asignStmp3FinLabel.text = "3 Fing Tap"
+    asignStmp3FinLabel.adjustsFontSizeToFitWidth=true
+    asignStmp3FinLabel.infoLabelformat()
+    asignStmp3FinLabel.font = UIFont.systemFontOfSize(CGFloat(12))
+    asignStmp3FinLabel.layer.borderWidth = 0
+    asignStmp3FinLabel.center = asignGridSet(5,ynum:4)
+    asignStmp3FinLabel.center.y = (asignStmp3FinLabel.center.y)-(preferenceCircleRect.size.height*0.6)
+    preferenceScrollView.addSubview(asignStmp3FinLabel)
+    
+    /*let reSetAsignCircle  = UILabel(frame:preferenceCircleRect)
+     reSetAsignCircle .text = "reset"
+     reSetAsignCircle .infoLabelformat()
+     reSetAsignCircle .frame.size = CGSizeMake(reSetAsignCircle .frame.width*0.7, reSetAsignCircle .frame.height*0.7)
+     reSetAsignCircle .layer.cornerRadius = reSetAsignCircle.frame.width / 2
+     reSetAsignCircle .center = asignGridSet(5,ynum:5)
+     reSetAsignCircle .tag = 23
+     reSetAsignCircle .addGestureRecognizer( UIPanGestureRecognizer(target: self, action: #selector(ViewController.setPanGesture(_:))))
+     //reSetAsignCircle .alpha = 0.5
+     preferenceScrollView.addSubview(reSetAsignCircle )
+     */
     
     
-   
-    
-    let   stampAsignLabel = UILabel(frame:preferenceCircleRect)
-    // stampAsignLabel.text = "S\nL\nI\nD\nE"
-     stampAsignLabel.text = "Stamp Play"
-     stampAsignLabel.adjustsFontSizeToFitWidth=true
-     stampAsignLabel.infoLabelformat()
-     stampAsignLabel.layer.borderWidth = 0
-     stampAsignLabel.center = preferenceGridCenterSet(4,ynum:1)
-     stampAsignLabel.center.y = (stampAsignLabel.center.y)-(preferenceCircleRect.size.height*0.7)
-    preferenceScrollView.addSubview( stampAsignLabel)
-    
-
     
     
-    
-    let  preference1stPageLabel = UILabel(frame:preferenceCircleRect)
+      preference1stPageLabel = UILabel(frame:preferenceCircleRect)
     preference1stPageLabel.frame.size.width = screenWidth/2
     preference1stPageLabel.text = "Player\nPreference"
     preference1stPageLabel.font = UIFont.systemFontOfSize(CGFloat(30))
@@ -653,44 +1025,124 @@ Play Mode:
     preference1stPageLabel.infoLabelformat()
     preference1stPageLabel.layer.cornerRadius = 0
     preference1stPageLabel.layer.borderWidth = 0
-    preference1stPageLabel.center = preferenceGridCenterSet(1,ynum:0)
-    preference1stPageLabel.center.y = (preference1stPageLabel.center.y)-(preferenceCircleRect.size.height*1.5)
+    preference1stPageLabel.center = asignGridSet(1,ynum:0)
+    //preference1stPageLabel.center.y = (preference1stPageLabel.center.y)-(preferenceCircleRect.size.height*1.5)
     preferenceScrollView.addSubview(preference1stPageLabel)
     
-    let  preference2stPageLabel = UILabel(frame:CGRectMake(screenWidth,screenHeight/4,screenWidth,preferenceCircleRect.height))
-    
+     preference2stPageLabel = UILabel(frame:CGRectMake(screenWidth,screenHeight/4,screenWidth,preferenceCircleRect.height))
     preference2stPageLabel.frame.size.width = screenWidth/2
     preference2stPageLabel.text = "Asign\nPreference"
-     preference2stPageLabel.font = UIFont.systemFontOfSize(CGFloat(30))
+    preference2stPageLabel.font = UIFont.systemFontOfSize(CGFloat(30))
     preference2stPageLabel.infoLabelformat()
     preference2stPageLabel.layer.cornerRadius = 0
     preference2stPageLabel.layer.borderWidth = 0
-    preference2stPageLabel.center = preferenceGridCenterSet(4,ynum:0)
-    preference2stPageLabel.center.y = (preference2stPageLabel.center.y)-(preferenceCircleRect.size.height*1.5)
+    preference2stPageLabel.center = asignGridSet(4,ynum:0)
+    //    preference2stPageLabel.center.y = (preference2stPageLabel.center.y)-(preferenceCircleRect.size.height*1.5)
     preferenceScrollView.addSubview(preference2stPageLabel)
-
-    
-    
-    
-    
-    selectedModeLabel = UILabel(frame: CGRectMake(0,0, screenWidth, 88))
-    selectedModeLabel.font=UIFont.systemFontOfSize(CGFloat(30))
-    selectedModeLabel.adjustsFontSizeToFitWidth=true
-    selectedModeLabel.backgroundColor=UIColor.clearColor()
-    selectedModeLabel.textColor = self.view.tintColor
-    selectedModeLabel.textAlignment =  NSTextAlignment.Center
-    
-    
-    
-    //加速度センサ系の設定
-    motionProcess()
-    
   }
   
-  override func didReceiveMemoryWarning() {
-    super.didReceiveMemoryWarning()
-    // Dispose of any resources that can be recreated.
+  func preferenceReSet(){
+    if(phaize != 8){
+    preferenceView.frame=CGRectMake(0,screenHeight,screenWidth,screenHeight)
+    }else{
+      preferenceView.frame=CGRectMake(0,0,screenWidth,screenHeight)
+    }
+    // ScrollView
+    preferenceScrollView.frame = self.view.frame
+    // ページ数を定義する.
+    let pageSize = 2
+    
+    preferenceScrollView.contentSize = CGSizeMake(CGFloat(pageSize) * screenWidth, 0)
+    pageControl.frame = CGRectMake(0, self.view.frame.maxY - 100, screenWidth, 50)
+    preferenceCircleRect = CGRectMake(0,0,screenShortSize/4,screenShortSize/4)
+    
+    print("preferenceCircleの７つ分のサイズが縦サイズに収まるか？",screenHeight-preferenceCircleRect.height*7)
+    if(screenHeight-preferenceCircleRect.height*7 < 0){
+      preferenceCircleRect = CGRectMake(0,0,screenLargeSize/8,screenLargeSize/8)
+      print("preferenceCircle調整後、",preferenceCircleRect.height)
+    }
+    
+    scanPrefImg.frame=preferenceCircleRect
+    scanPrefImg.center =  preferenceGridCenterSet(0,ynum:0)
+    
+    stmpPrefSetImg.frame=preferenceCircleRect
+    stmpPrefSetImg.center =  preferenceGridCenterSet(0,ynum:1)
+    
+    scanSpeedSetCircle.frame=preferenceCircleRect
+    scanSpeedSetCircle.center = preferenceGridCenterSet(1,ynum:0)
+    
+    lightBarSizeSetCircle.frame=preferenceCircleRect
+    lightBarSizeSetCircle.center =  preferenceGridCenterSet(2,ynum:0)
+    
+    
+    stampSpeedSetCircle.frame=preferenceCircleRect
+    stampSpeedSetCircle.center = preferenceGridCenterSet(1,ynum:1)
+    
+    stampSizeSetCircle.frame=preferenceCircleRect
+    stampSizeSetCircle.center = preferenceGridCenterSet(2,ynum:1)
+    
+    reSetPlayParaCircle.frame=preferenceCircleRect
+    reSetPlayParaCircle.frame.size = CGSizeMake(reSetPlayParaCircle .frame.width*0.75, reSetPlayParaCircle.frame.height*0.75)
+    reSetPlayParaCircle.center = preferenceGridCenterSet(1,ynum:2)
+    
+    
+    scanAsignSetImg.frame=preferenceCircleRect
+    scanAsignSetImg.frame.size = CGSizeMake(scanAsignSetImg.frame.width * 0.7, scanAsignSetImg.frame.height*0.7)
+    scanAsignSetImg.center = asignGridSet(4,ynum:1)
+    
+    stmpAsignSetImg.frame=preferenceCircleRect
+    stmpAsignSetImg.frame.size = CGSizeMake(stmpAsignSetImg.frame.width * 0.7, stmpAsignSetImg.frame.height*0.7)
+    stmpAsignSetImg.center = asignGridSet(4,ynum:3)
+    
+    asignScan1FinLabel.frame=preferenceCircleRect
+    asignScan1FinLabel.center = asignGridSet(3,ynum:2)
+    asignScan1FinLabel.center.y = (asignScan1FinLabel.center.y)-(preferenceCircleRect.size.height*0.6)
+    asignScan2FinLabel.frame=preferenceCircleRect
+    asignScan2FinLabel.center = asignGridSet(4,ynum:2)
+    asignScan2FinLabel.center.y = (asignScan2FinLabel.center.y)-(preferenceCircleRect.size.height*0.6)
+    
+    asignScan3FinLabel.frame=preferenceCircleRect
+    asignScan3FinLabel.center = asignGridSet(5,ynum:2)
+    asignScan3FinLabel.center.y = (asignScan3FinLabel.center.y)-(preferenceCircleRect.size.height*0.6)
+    
+    scan1fAsignSetCircle.frame=preferenceCircleRect
+    scan1fAsignSetCircle.center = asignGridSet(3,ynum:2)
+    
+    scan2fAsignSetCircle .frame=preferenceCircleRect
+    scan2fAsignSetCircle.center = asignGridSet(4,ynum:2)
+    
+    scan3fAsignSetCircle.frame=preferenceCircleRect
+    scan3fAsignSetCircle.center = asignGridSet(5,ynum:2)
+    
+    stamp1fAsignSetCircle.frame=preferenceCircleRect
+    stamp1fAsignSetCircle.center =  asignGridSet(3,ynum:4)
+    
+    stamp2fAsignSetCircle.frame=preferenceCircleRect
+    stamp2fAsignSetCircle.center = asignGridSet(4,ynum:4)
+    
+    stamp3fAsignSetCircle.frame=preferenceCircleRect
+    stamp3fAsignSetCircle.center = asignGridSet(5,ynum:4)
+    
+    asignStmp1FinLabel.frame=preferenceCircleRect
+    asignStmp1FinLabel.center = asignGridSet(3,ynum:4)
+    asignStmp1FinLabel.center.y = (asignStmp1FinLabel.center.y)-(preferenceCircleRect.size.height*0.6)
+    
+    asignStmp2FinLabel.frame=preferenceCircleRect
+    asignStmp2FinLabel.center = asignGridSet(4,ynum:4)
+    asignStmp2FinLabel.center.y = (asignStmp2FinLabel.center.y)-(preferenceCircleRect.size.height*0.6)
+    
+    asignStmp3FinLabel.frame=preferenceCircleRect
+    asignStmp3FinLabel.center = asignGridSet(5,ynum:4)
+    asignStmp3FinLabel.center.y = (asignStmp3FinLabel.center.y)-(preferenceCircleRect.size.height*0.6)
+    
+    preference1stPageLabel.frame.size.width = screenWidth/2
+    preference1stPageLabel.center = asignGridSet(1,ynum:0)
+    
+    preference2stPageLabel.frame.size.width = screenWidth/2
+    preference2stPageLabel.center = asignGridSet(4,ynum:0)
+    
   }
+
   
   func scrollViewDidEndDecelerating(scrollView: UIScrollView) {
     noActionTimer=0
@@ -880,10 +1332,29 @@ func CameraStart(sender: AnyObject) {
     //:2ページで完結する場合の設定
       centerPoint = CGPointMake(setXBaseIndent + preferenceCircleRect.width/2+(preferenceCircleRect.width*CGFloat(xnum % 3 )) + sukimaSetX * CGFloat(xnum % 3)+(screenWidth) * CGFloat(xnum / 3),setYBaseIndent +  preferenceCircleRect.height/2+(preferenceCircleRect.height*CGFloat(ynum)) + sukimaSetY * CGFloat(ynum )+(screenHeight/4))
 
-    print("center",centerPoint)
+    //print("center",centerPoint)
     
     return centerPoint
   }
+  
+  
+  func asignGridSet(xnum:Int,ynum:Int) -> CGPoint{
+    var centerPoint:CGPoint!
+    let sukimaSetX:CGFloat = step / 2
+    let sukimaSetY:CGFloat = (screenHeight-preferenceCircleRect.height*7 ) / 8
+    
+    let setXBaseIndent:CGFloat = (screenWidth - (preferenceCircleRect.width*3 + sukimaSetX*2))*0.5
+    //let setYBaseIndent:CGFloat = (screenHeight/2 - (preferenceCircleRect.height*2 + sukimaSetY))*0.5
+    //:1ページで完結する場合の設定
+    //let setYBaseIndent:CGFloat = (screenHeight/2 - (preferenceCircleRect.height*2 + sukimaSetX))*0.5
+    centerPoint = CGPointMake(setXBaseIndent + preferenceCircleRect.width/2+(preferenceCircleRect.width*CGFloat(xnum % 3 )) + sukimaSetX * CGFloat(xnum % 3)+(screenWidth) * CGFloat(xnum / 3) ,
+                              preferenceCircleRect.height/2+preferenceCircleRect.height/5*CGFloat(Int(ynum/3))+(preferenceCircleRect.height*CGFloat(ynum)) + sukimaSetY+sukimaSetY*CGFloat(ynum))
+    
+    //print("center",centerPoint)
+    
+    return centerPoint
+  }
+
 
 // MARK: - 撮影が完了時した時に呼ばれる
   func imagePickerController(imagePicker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
@@ -898,34 +1369,27 @@ func CameraStart(sender: AnyObject) {
       if (isFirstSet == true ) {
         print("isFirstSet")
         
-        let infoframe:CGRect = CGRectMake(buttonMainSize.x/2-screenWidth * 2 / 10,buttonMainSize.y/2,screenWidth * 4 / 10,screenWidth * 4 / 10)
-        let infoSize = CGSizeMake(buttonMainSize.x / 4.2, buttonMainSize.x / 4.2)
-        
-        scanintervalLabel = UILabel(frame:infoframe)
-        scanintervalLabel.frame.size = infoSize
-        scanintervalLabel.center.y = buttonMainSize.y * 6.5 / 10
-        scanintervalLabel.center.x = buttonMainSize.x / 4
-        scanintervalLabel.infoLabelformat()
+        scanintervalLabel=UILabel()
+        scanIconView=UIImageView()
+        mainInfoLabelformat(scanintervalLabel,imgView:scanIconView,num:0)
         scanintervalLabel.text = ""
-        scanintervalLabel.tag = 21
-//        scanintervalLabel.addGestureRecognizer(stampTap)
-//        scanintervalLabel.userInteractionEnabled=true
-        viewerOpeView.addSubview(scanintervalLabel)
         
-        
-        
-        stampIntervalLabel = UILabel(frame:infoframe)
-        stampIntervalLabel.frame.size = infoSize
-        stampIntervalLabel.center.y = buttonMainSize.y * 6.5 / 10
-        stampIntervalLabel.center.x = buttonMainSize.x * 2 / 4
-        stampIntervalLabel.infoLabelformat()
+        stampIntervalLabel=UILabel()
+        stmpIconView=UIImageView()
+        mainInfoLabelformat( stampIntervalLabel,imgView:stmpIconView,num:1)
         stampIntervalLabel.text = ""
-        stampIntervalLabel.tag = 22
-//        stampIntervalLabel.addGestureRecognizer(stampTap)
-//        stampIntervalLabel.userInteractionEnabled=true
-        viewerOpeView.addSubview(stampIntervalLabel)
+       
+        scanIconView.image = UIImage(named:"slide-150px.png")
+        scanIconView.alpha=scanintervalLabel.alpha
+        mainLabelView.addSubview(scanIconView)
+        
+        stmpIconView.image = UIImage(named:"stmp-150px.png")
+        stmpIconView.alpha=scanintervalLabel.alpha
+        mainLabelView.addSubview(stmpIconView)
+  
         
         
+       /*
         lightBarSizeLabel = UILabel(frame:infoframe)
         lightBarSizeLabel.frame.size = infoSize
         lightBarSizeLabel.center.y = buttonMainSize.y * 6.5 / 10
@@ -933,23 +1397,26 @@ func CameraStart(sender: AnyObject) {
         lightBarSizeLabel.infoLabelformat()
         lightBarSizeLabel.text = ""
          lightBarSizeLabel.tag = 23
-//        lightBarSizeLabel.userInteractionEnabled=true
-//        lightBarSizeLabel.addGestureRecognizer(stampTap)
-        viewerOpeView.addSubview(lightBarSizeLabel)
+         */
         
         
         
         
 
         //設定ボタン
-        /*
-        viewerInfoButton = UIButton(frame: CGRectMake(buttonMainSize.x/2,buttonMainSize.y/2, screenWidth * 2 / 10,screenWidth * 2 / 10  ))
+        viewerInfoButton = UIButton(frame: CGRectMake(screenWidth-55,11,44,44))
         viewerInfoButton.layer.cornerRadius = viewerInfoButton.frame.width / 2
-        viewerInfoButton.center =  CGPointMake(buttonMainSize.x * 0.75,buttonMainSize.y * 0.25)
-        viewerInfoButton.backgroundColor = UIColor.whiteColor()
+        viewerInfoButton.layer.borderWidth = 3
+        viewerInfoButton.layer.borderColor = UIColor(red:0, green:0.6627,blue:0.6157, alpha:0.7).CGColor
+        viewerInfoButton.backgroundColor = UIColor.clearColor()
+        viewerInfoButton.setImage(UIImage(named:"up-alpha-nega-100px.png"), forState: UIControlState.Normal)
         viewerInfoButton.setTitle("Info", forState: UIControlState.Normal)
-        viewerOpeView.addSubview(viewerInfoButton)
-        */
+        mainLabelView.addSubview(viewerInfoButton)
+        //preferenceView.addSubview(viewerInfoButton)
+        viewerInfoButton.addTarget(self, action: #selector(ViewController.upButtonTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+
+        
+        
         
         
        editButton.enabled = true
@@ -979,27 +1446,25 @@ func CameraStart(sender: AnyObject) {
         self.view.addSubview(stampSpeedInfoTxt)
         self.view.addSubview(lightBarSizeInfoTxt)
         */
-        self.view.addSubview(selectedModeLabel)
-        
+       
+        notificationLabel.alpha = 0
+        preferenceView.alpha = 0
+
         isFirstSet = false
       }
 
       cameraView.image = pickedImage
       cameraView.alpha = 0.3
-      opeImage = UIImageView(frame:viewerOpeView.frame)
-      opeImage.tag = 1
-      opeImage.userInteractionEnabled = true
+      //opeImage.tag = 1
+      //opeImage.userInteractionEnabled = true
       opeImage.image = pickedImage
-      opeImage.frame.origin=CGPointMake(0,0)
-      print(viewerOpeView.subviews.count)
       
-      viewerOpeView.addSubview(opeImage)
       //viewerOpeView.sendSubviewToBack(opeImage)
       //viewerOpeView.bringSubviewToFront(viewerInfoButton)
       
-      viewerOpeView.bringSubviewToFront(scanintervalLabel)
-      viewerOpeView.bringSubviewToFront(stampIntervalLabel)
-      viewerOpeView.bringSubviewToFront(lightBarSizeLabel)
+//      viewerOpeView.bringSubviewToFront(scanintervalLabel)
+//      viewerOpeView.bringSubviewToFront(stampIntervalLabel)
+//      viewerOpeView.bringSubviewToFront(lightBarSizeLabel)
       
       intervaltime = intervalTimeSet(cameraView, speed:1.5)
       print("intervaltime:",intervaltime)
@@ -1007,17 +1472,17 @@ func CameraStart(sender: AnyObject) {
       
       scanintervalLabel.text = String(format: "%.1fsec",intervaltime)
       stampIntervalLabel.text = "1/60"
-      lightBarSizeLabel.text = String(format: "%.0fpx",(viewerSettingData.2))
+//      lightBarSizeLabel.text = String(format: "%.0fpx",(viewerSettingData.2))
 
       scanSpeedSetCircle.text = scanintervalLabel.text
       stampSpeedSetCircle.text = stampIntervalLabel.text
-      lightBarSizeSetCircle.text = lightBarSizeLabel.text
+//      lightBarSizeSetCircle.text = lightBarSizeLabel.text
       
       scanSizeFit(cameraView)
       print("frame:x=",cameraView.frame.origin.x,"frame:y=",cameraView.frame.origin.y,"frame:heigth=",cameraView.frame.size.height,"frame:width=",cameraView.frame.size.width)
       
+      //self.view.bringSubviewToFront(mainLabelView)
       self.view.bringSubviewToFront(viewerOpeView)
-      self.view.bringSubviewToFront(scanintervalLabel)
       
     }
     
@@ -1030,7 +1495,7 @@ func CameraStart(sender: AnyObject) {
   override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
     let touch = touches.first
      print("タッチした画像のタグ:",touch?.view?.tag,"count:",touches.count)
-    if(touch?.view?.tag > 20 && touch?.view?.tag < 24  ){
+    /*if(touch?.view?.tag > 20 && touch?.view?.tag < 24  ){
     print("infoボタンタッチ")
       viewerOpeView.removeGestureRecognizer(stampTap)
       viewerOpeView.removeGestureRecognizer(doubleTap)
@@ -1056,9 +1521,7 @@ func CameraStart(sender: AnyObject) {
           self.viewerOpeView.addGestureRecognizer(self.stampTap)
           self.viewerOpeView.addGestureRecognizer(self.doubleTap)
           self.viewerOpeView.addGestureRecognizer(self.tripleTap)
-          
           self.viewerOpeView.addGestureRecognizer(self.myPan)
-          
           self.viewerOpeView.addGestureRecognizer(self.swipeLeft)
           self.viewerOpeView.addGestureRecognizer(self.swipeRight)
 
@@ -1066,7 +1529,7 @@ func CameraStart(sender: AnyObject) {
       
 
       
-    }
+    }*/
     // タップした座標を取得する
     let tapLocation = touch!.locationInView(self.view)
     print("タッチした座標:",tapLocation)
@@ -1172,6 +1635,7 @@ func CameraStart(sender: AnyObject) {
                                 self.frameViewL.alpha=1
                                 self.frameViewR.frame.origin.x = self.screenWidth / 2
                                 self.frameViewL.frame.origin.x = 0
+                                self.mainLabelView.alpha=0
       },completion: { finished in
         // 遅延処理
             dispatch_after(delayTime, dispatch_get_main_queue()) {
@@ -1222,6 +1686,7 @@ func CameraStart(sender: AnyObject) {
                                 self.frameViewL.alpha=1
                                 self.frameViewR.frame.origin.x = self.screenWidth / 2
                                 self.frameViewL.frame.origin.x = 0
+                                self.mainLabelView.alpha=0
                                 
       },completion: { finished in
         // 遅延処理
@@ -1305,7 +1770,8 @@ func CameraStart(sender: AnyObject) {
       //self.frameViewR.frame.origin.x = self.screenWidth / 2 + (self.viewerSettingData.2)
       //self.frameViewL.frame.origin.x = -1 * (self.viewerSettingData.2)
       self.cameraView.alpha = 0.3
-      
+      self.mainLabelView.alpha=1
+
       },completion: { finished in
         
         self.addImageButton.enabled = true
@@ -1519,6 +1985,7 @@ func CameraStart(sender: AnyObject) {
 
   func closingTapScanMode() {
     print("closingTapScanMode()")
+    cameraView.layer.removeAllAnimations()
     UIView.animateWithDuration(0.3, animations: { () -> Void in
       //一度、真っ黒に扉が閉じる
       self.frameViewR.frame.origin.x = self.screenWidth / 2
@@ -1529,7 +1996,6 @@ func CameraStart(sender: AnyObject) {
   }
   func stopPlayTapped(gestureRecognizer: UITapGestureRecognizer){
     print("stopPlayTapped")
-    cameraView.layer.removeAllAnimations()
     self.closingPlayImage()
   }
 
@@ -1610,10 +2076,9 @@ func CameraStart(sender: AnyObject) {
           },completion: { finished in
           })
         }//if
-   if(self.noActionTimer > 30){
+   if(self.noActionTimer > 100){
     
     self.scanSizeFit(self.cameraView)
-    
           UIView.animateWithDuration(0.5,
                                      animations: {() -> Void in
                                       self.frameViewR.alpha=0
@@ -1622,10 +2087,17 @@ func CameraStart(sender: AnyObject) {
                                       self.myToolBar.alpha = 1
                                       self.editParametorViewChange(1)
             },completion: { finished in
-              self.barSizeChangeAnimationCompleted = true
-              self.noActionTimer = 0
+              /*self.viewerInfoButton.setImage(UIImage(named:"up-alpha-nega-100px.png"), forState: UIControlState.Normal)
+              UIView.animateWithDuration(0.3,
+                animations: {() -> Void in
+                  self.viewerInfoButton.alpha=1
+                },completion: { finished in
+              })*/
               self.phaize = 0
               print("phaze:",self.phaize)
+              self.barSizeChangeAnimationCompleted = true
+              self.noActionTimer = 0
+              
           })
         }else{
           self.tenCentiSecondTimer()
@@ -1721,7 +2193,7 @@ func CameraStart(sender: AnyObject) {
       frameViewL.alpha=0
       //イメージをフルスクリーン
       cameraView.contentMode = .ScaleAspectFit
-      cameraView.frame = CGRectMake(0,0,screenWidth*CGFloat(viewerSettingData.4)*0.01,screenHeight*CGFloat(viewerSettingData.4)*0.01)
+      cameraView.frame.size = CGSizeMake(screenWidth*CGFloat(viewerSettingData.4)*0.01,screenHeight*CGFloat(viewerSettingData.4)*0.01)
       cameraView.center=CGPoint(x: screenWidth/2,y: screenHeight/2)
       
       
@@ -1745,7 +2217,9 @@ func CameraStart(sender: AnyObject) {
       self.oneSecondTimer()
       //イメージをフルスクリーン
       cameraView.contentMode = .ScaleAspectFit
-      cameraView.frame = CGRectMake(0,0,screenWidth,screenHeight)
+      cameraView.frame.size = CGSizeMake(screenWidth*CGFloat(viewerSettingData.4)*0.01,screenHeight*CGFloat(viewerSettingData.4)*0.01)
+      cameraView.center=CGPoint(x: screenWidth/2,y: screenHeight/2)
+      
       stampTime = stampSpeedTable[speed] * Double(NSEC_PER_SEC)
       
      case 3:
@@ -1755,7 +2229,9 @@ func CameraStart(sender: AnyObject) {
       //self.oneSecondTimer()
       //イメージをフルスクリーン
       cameraView.contentMode = .ScaleAspectFit
-      cameraView.frame = CGRectMake(0,0,screenWidth,screenHeight)
+      cameraView.frame.size = CGSizeMake(screenWidth*CGFloat(viewerSettingData.4)*0.01,screenHeight*CGFloat(viewerSettingData.4)*0.01)
+      cameraView.center=CGPoint(x: screenWidth/2,y: screenHeight/2)
+      
       stampTime = stampSpeedTable[speed] * Double(NSEC_PER_SEC)
       
      // print("gyroActive: ",myMotionManager.gyroActive
@@ -1785,6 +2261,20 @@ func CameraStart(sender: AnyObject) {
   }
   
   // MARK: - メイン画面での操作、ジェスチャー関連
+  
+  func setMainLabel(){
+//    scanintervalLabel.text = String(format: "%.2fsec",intervalTimeSet(cameraView,speed:scanSpeedTable[ (viewerSettingData.0)])) + "\nsize:"+String(viewerSettingData.2)+"px"
+//    
+//    stampIntervalLabel.text = stampSpStringTable[(viewerSettingData.3)]+"sec"+"\nsize:"+String(viewerSettingData.4)+"%"
+
+    scanintervalLabel.text = String(format: "%.2fsec",intervalTimeSet(cameraView,speed:scanSpeedTable[ (viewerSettingData.0)]))
+    
+    stampIntervalLabel.text = stampSpStringTable[(viewerSettingData.3)]+"sec"
+  }
+  
+  
+  
+  
   /*
    ピンチイベントの実装.
    */
@@ -1807,7 +2297,7 @@ func CameraStart(sender: AnyObject) {
     frameViewR.frame.origin.x = screenWidth/2 + (viewerSettingData.2)
     frameViewL.frame.origin.x = -1 * (viewerSettingData.2)
     //cameraView.frame.origin.x = screenWidth/2 - (viewerSettingData.2)
-    lightBarSizeLabel.text = String(format: "%.0fpx",(viewerSettingData.2))
+//    lightBarSizeLabel.text = String(format: "%.0fpx",(viewerSettingData.2))
     lightBarSizeSetCircle.text = String(format: "%.0fpx",(viewerSettingData.2))
     
     
@@ -1884,7 +2374,7 @@ func viewTapped(gestureRecognizer: UITapGestureRecognizer){
   }else if(phaize == 0){
   print("phase 0 tap")
   }else if(phaize == 9){
-    // 9 = tap Stamp mode 
+    // 9 = tap Stamp mode Redy
     noActionTimer = 0
     stampFire()
   }else if(phaize == 8){
@@ -1898,12 +2388,20 @@ func viewTapped(gestureRecognizer: UITapGestureRecognizer){
                                 self.viewerOpeView.center.y =  self.buttonMainCenter.y
                                 self.myToolBar.alpha = 1
                                 self.editParametorViewChange(1)
+                                //self.viewerInfoButton.alpha=0
                                 
       },completion: { finished in
-        self.barSizeChangeAnimationCompleted = true
-        self.noActionTimer = 0
+        /*
+        self.viewerInfoButton.setImage(UIImage(named:"up-alpha-nega-100px.png"), forState: UIControlState.Normal)
+        UIView.animateWithDuration(0.3,
+          animations: {() -> Void in
+            self.viewerInfoButton.alpha=1
+          },completion: { finished in
+        })*/
         self.phaize = 0
         print("phaze:",self.phaize)
+        self.barSizeChangeAnimationCompleted = true
+        self.noActionTimer = 0
     })
 
   }
@@ -1977,6 +2475,161 @@ func viewTapped(gestureRecognizer: UITapGestureRecognizer){
 }
   
   
+  
+  internal func setTapGesture(sender: UITapGestureRecognizer){
+    noActionTimer = 0
+  print("tap:",sender.view?.tag)
+    let ui_label: UILabel = sender.view as! UILabel
+    switch sender.view?.tag{
+    case 11?:
+      print("tag11")
+      var diffPoint:Int = (viewerDataBuffer.0) + 1
+      print("tag11-0",diffPoint)
+      if(diffPoint > ((scanSpeedTable.count)-1)){
+        diffPoint = 0
+      }
+        ui_label.text = String(format: "Speed\n%.2fsec",intervalTimeSet(cameraView,speed:scanSpeedTable[diffPoint]))
+        (viewerSettingData.0) = diffPoint
+        (viewerDataBuffer.0) = (viewerSettingData.0)
+    case 12?:
+      print("12tap")
+      var diffPoint:Int = (viewerDataBuffer.1)+1
+      print("tag12-0",diffPoint)
+      
+      if(diffPoint > ((stampSpStringTable.count)-1)){
+        diffPoint = 3
+      }
+      print("tag12-1",diffPoint)
+      
+      ui_label.text = "FlashRate\n"+stampSpStringTable[diffPoint]
+        (viewerSettingData.1) = diffPoint
+        (viewerDataBuffer.1) = (viewerSettingData.1)
+      
+    case 13?:
+      print("tag13")
+      var addedPoint:CGFloat = (viewerDataBuffer.2) + 3
+      frameViewR.alpha=1
+      frameViewL.alpha=1
+      cameraView.alpha=1
+      scanSizeFit(cameraView)
+      if(addedPoint > (screenWidth / 2 - 1)){
+        addedPoint = 1
+      }
+
+        ui_label.text = String(format: "BarSize\n%.0fpx",addedPoint)
+        (viewerSettingData.2) = addedPoint
+        (viewerDataBuffer.2) = (viewerSettingData.2)
+        print("tag13-2",(viewerDataBuffer.2))
+        frameViewR.frame.origin.x = screenWidth / 2 + (viewerSettingData.2)
+        frameViewL.frame.origin.x = -1 * (viewerSettingData.2)
+        cameraView.frame.origin.x = screenWidth / 2 - (viewerSettingData.2)
+    case 14?:
+      print("tag14")
+      var diffPoint:Int = (viewerDataBuffer.3)+1
+      print("tag14-0",diffPoint)
+      
+      if(diffPoint > ((stampSpStringTable.count)-1)){
+        diffPoint = 0
+      }
+      print("tag14-1",diffPoint)
+        ui_label.text = "Speed\n"+stampSpStringTable[diffPoint]
+        (viewerSettingData.3) = diffPoint
+        (viewerDataBuffer.3) = (viewerSettingData.3)
+      
+      
+    case 15?:
+      print("tag15")
+      //扉を消して画像を表示
+      frameViewR.alpha=0
+      frameViewL.alpha=0
+      //イメージをフルスクリーン
+      cameraView.alpha=1
+      cameraView.contentMode = .ScaleAspectFit
+      var diffPoint:Int = (viewerDataBuffer.4)+10
+      print("tag15-0",diffPoint)
+      if(diffPoint > 200){
+        diffPoint = 50
+      }
+        ui_label.text = "Size\n"+String(diffPoint)+"%"
+        (viewerSettingData.4) = diffPoint
+        (viewerDataBuffer.4) = (viewerSettingData.4)
+        cameraView.frame = CGRectMake(0,0,screenWidth*CGFloat(viewerSettingData.4)*0.01,screenHeight*CGFloat(viewerSettingData.4)*0.01)
+        cameraView.center=CGPoint(x: screenWidth/2,y: screenHeight/2)
+    case 17?:
+      print("tag17")
+      let diffPoint:Int = abs(AsignBuffer[0] + 1)%3
+        ui_label.text = AsignStringTable[diffPoint]
+        AsignData[0] = diffPoint
+        AsignBuffer[0] = AsignData[0]
+    case 18?:
+      print("tag18")
+      let diffPoint:Int = abs(AsignBuffer[1]+1)%3
+        ui_label.text = AsignStringTable[diffPoint]
+        AsignData[1] = diffPoint
+        AsignBuffer[1] = AsignData[1]
+    case 19?:
+      print("tag19")
+      let diffPoint:Int = abs(AsignBuffer[2] + 1) % 3
+              ui_label.text = AsignStringTable[diffPoint]
+        AsignData[2] = diffPoint
+        AsignBuffer[2] = AsignData[2]
+    case 20?:
+      print("tag20")
+      var diffPoint:Int = abs(AsignBuffer[3] + 1)%3
+      if(diffPoint > 0){
+        diffPoint += 1 //StampにはLoopModeがないので、
+      }
+        ui_label.text = AsignStringTable[diffPoint]
+        AsignData[3] = diffPoint
+        AsignBuffer[3] = AsignData[3]
+    case 21?:
+      print("tag21")
+      var diffPoint:Int = abs(AsignBuffer[4] + 1)%3
+      if(diffPoint > 0){
+        diffPoint += 1 //StampにはLoopModeがないので、
+      }
+        ui_label.text = AsignStringTable[diffPoint]
+        AsignData[4] = diffPoint
+        AsignBuffer[4] = AsignData[4]
+    case 22?:
+      print("tag22")
+      var diffPoint:Int = abs(AsignBuffer[5]+1)%3
+      if(diffPoint > 0){
+        diffPoint += 1 //StampにはLoopModeがないので、
+      }
+        ui_label.text = AsignStringTable[diffPoint]
+        AsignData[5] = diffPoint
+        AsignBuffer[5] = AsignData[5]
+    case 23?:
+      print("tag23 フォルトに戻す。")
+      
+      //デフォルトに戻す。
+      viewerSettingData = viewerDefaultSettingData
+      viewerDataBuffer = viewerSettingData
+      
+      scanSpeedSetCircle.text = String(format: "Speed\n%.2fsec",intervalTimeSet(cameraView,speed:scanSpeedTable[ viewerSettingData.0]))
+      scanintervalLabel.text = String(format: "%.2fsec",intervalTimeSet(cameraView,speed:scanSpeedTable[viewerSettingData.0]))
+      
+      lightBarSizeSetCircle.text = String(format: "BarSize\n%.0fpx",viewerSettingData.2)
+      frameViewR.frame.origin.x = screenWidth / 2 + (viewerSettingData.2)
+      frameViewL.frame.origin.x = -1 * (viewerSettingData.2)
+      cameraView.frame.origin.x = screenWidth / 2 - (viewerSettingData.2)
+//      lightBarSizeLabel.text = String(format: "%.0fpx",(viewerSettingData.2))
+      
+      stampSpeedSetCircle.text = "Speed\n"+stampSpStringTable[ (viewerSettingData.3)]
+      stampIntervalLabel.text = stampSpStringTable[ (viewerSettingData.3)]
+      
+      stampSizeSetCircle.text = "Size\n"+String(viewerSettingData.4)+"%"
+      cameraView.frame = CGRectMake(0,0,screenWidth*CGFloat(viewerSettingData.4)*0.01,screenHeight*CGFloat(viewerSettingData.4)*0.01)
+      cameraView.center=CGPoint(x: screenWidth/2,y: screenHeight/2)
+      
+    default:
+      
+      break
+
+    }
+    setMainLabel()
+  }
   /*
    パン.
    */
@@ -1984,15 +2637,12 @@ func viewTapped(gestureRecognizer: UITapGestureRecognizer){
     let movesizeY = Int(sender.translationInView(self.view).y/20 )
     let movesizeFullY = Int(sender.translationInView(self.view).y)
     let ui_label: UILabel = sender.view as! UILabel
- 
     noActionTimer = 0
-
     switch sender.view?.tag{
     case 11?:
       print("tag11")
       var diffPoint:Int = (viewerDataBuffer.0) + movesizeY
       print("tag11-0",diffPoint)
-      
       if(diffPoint < 0){
         diffPoint = 0
       }else if(diffPoint > ((scanSpeedTable.count)-1)){
@@ -2001,13 +2651,11 @@ func viewTapped(gestureRecognizer: UITapGestureRecognizer){
       print("tag11-1",diffPoint)
       if(sender.numberOfTouches() > 0){
         ui_label.text = String(format: "%.2fsec",intervalTimeSet(cameraView,speed:scanSpeedTable[diffPoint]))
-        
       }else{
         ui_label.text = String(format: "Speed\n%.2fsec",intervalTimeSet(cameraView,speed:scanSpeedTable[diffPoint]))
         (viewerSettingData.0) = diffPoint
          (viewerDataBuffer.0) = (viewerSettingData.0)
-        scanintervalLabel.text = String(format: "%.2fsec",intervalTimeSet(cameraView,speed:scanSpeedTable[diffPoint]))
-
+      
       }
     case 12?:
       print("tag12")
@@ -2062,7 +2710,7 @@ func viewTapped(gestureRecognizer: UITapGestureRecognizer){
         frameViewR.frame.origin.x = screenWidth / 2 + (viewerSettingData.2)
         frameViewL.frame.origin.x = -1 * (viewerSettingData.2)
         cameraView.frame.origin.x = screenWidth / 2 - (viewerSettingData.2)
-        lightBarSizeLabel.text = String(format: "%.0fpx",(viewerSettingData.2))
+//        lightBarSizeLabel.text = String(format: "%.0fpx",(viewerSettingData.2))
         print("buffer:",(viewerDataBuffer.2),"addpoint:",addedPoint)
 
       }
@@ -2084,7 +2732,7 @@ func viewTapped(gestureRecognizer: UITapGestureRecognizer){
         ui_label.text = "Speed\n"+stampSpStringTable[diffPoint]
         (viewerSettingData.3) = diffPoint
         (viewerDataBuffer.3) = (viewerSettingData.3)
-        stampIntervalLabel.text = stampSpStringTable[diffPoint]
+        
       }
     case 15?:
       print("tag15")
@@ -2206,9 +2854,11 @@ func viewTapped(gestureRecognizer: UITapGestureRecognizer){
       sender.view?.backgroundColor = UIColor(red: 0,green: 0,blue: 0,alpha: 0.5)
       print("panning:",movesizeY)
     }else{
-      sender.view?.alpha = 0.75
+      sender.view?.alpha = 0.8
       sender.view?.backgroundColor = UIColor.clearColor()
       print("end:",movesizeY)
+      //メインビューのラベルに反映
+      setMainLabel()
       
     }
     
@@ -2216,11 +2866,14 @@ func viewTapped(gestureRecognizer: UITapGestureRecognizer){
   }
   
   func editParametorViewChange(direction:Int){
-     let setYOrigin:CGFloat!
+     let setPreferenceYOrigin:CGFloat!
+    let setMainYOrigin:CGFloat!
     if(direction == 0){
-     setYOrigin = 0}
+     setPreferenceYOrigin = 0
+    setMainYOrigin = -self.screenHeight}
     else{
-      setYOrigin = self.screenHeight
+      setPreferenceYOrigin = self.screenHeight
+       setMainYOrigin = 0
     }
     /*let textInfoSukima:CGFloat = scanSpeedSetCircle.frame.size.height
   scanSpeedSetCircle.center.y = setYCenter
@@ -2230,7 +2883,8 @@ func viewTapped(gestureRecognizer: UITapGestureRecognizer){
    stampSpeedInfoTxt.center.y = setYCenter + textInfoSukima
     lightBarSizeInfoTxt.center.y = setYCenter + textInfoSukima
  */
-    preferenceView.frame.origin.y =  setYOrigin
+    preferenceView.frame.origin.y =  setPreferenceYOrigin
+    mainLabelView.frame.origin.y = setMainYOrigin
   }
   
 
@@ -2243,13 +2897,23 @@ func viewTapped(gestureRecognizer: UITapGestureRecognizer){
     self.noActionTimer = 0
     viewerDataBuffer = viewerSettingData
     barSizeChangeAnimationCompleted = false
+    
     UIView.animateWithDuration(0.3,
                                animations: {() -> Void in
                                 self.viewerOpeView.center.y = -1 * self.buttonMainSize.x
                                 self.editParametorViewChange(0)
 //                                self.cameraView.alpha = 1
                                 self.myToolBar.alpha = 0
+                                //self.viewerInfoButton.alpha=0
       },completion: { finished in
+        /*
+        self.viewerInfoButton.setImage(UIImage(named:"down-alpha-nega-100px.png"), forState: UIControlState.Normal)
+        UIView.animateWithDuration(0.3,
+          animations: {() -> Void in
+            self.viewerInfoButton.alpha=1
+          },completion: { finished in
+        })
+        */
         self.tenCentiSecondTimer()
     })
 
@@ -2262,6 +2926,35 @@ func viewTapped(gestureRecognizer: UITapGestureRecognizer){
 
    editInfoViewAppear()
     
+  }
+  internal func upButtonTapped(sender:UIButton){
+    if(phaize==0){
+    pageControl.currentPage = 0
+    preferenceScrollView.contentOffset.x=0
+    editInfoViewAppear()
+    }else{
+      self.scanSizeFit(self.cameraView)
+      
+      UIView.animateWithDuration(0.5,
+                                 animations: {() -> Void in
+                                  self.frameViewR.alpha=0
+                                  self.frameViewL.alpha=0
+                                  self.viewerOpeView.center.y =  self.buttonMainCenter.y
+                                  self.myToolBar.alpha = 1
+                                  self.editParametorViewChange(1)
+        },completion: { finished in
+          /*self.viewerInfoButton.setImage(UIImage(named:"up-alpha-nega-100px.png"), forState: UIControlState.Normal)
+          UIView.animateWithDuration(0.3,
+            animations: {() -> Void in
+              self.viewerInfoButton.alpha=1
+            },completion: { finished in
+          })*/
+          self.barSizeChangeAnimationCompleted = true
+          self.noActionTimer = 0
+          self.phaize = 0
+          print("phaze:",self.phaize)
+      })
+    }
   }
   
   /*
@@ -2302,7 +2995,14 @@ internal func didSwipe(sender: UISwipeGestureRecognizer){
                                   self.editParametorViewChange(0)
 //                                  self.cameraView.alpha = 1
                                   self.myToolBar.alpha = 0
+                                  //self.viewerInfoButton.alpha=0
         },completion: { finished in
+          /*self.viewerInfoButton.setImage(UIImage(named:"down-alpha-nega-100px.png"), forState: UIControlState.Normal)
+          UIView.animateWithDuration(0.3,
+            animations: {() -> Void in
+              self.viewerInfoButton.alpha=1
+            },completion: { finished in
+          })*/
           self.tenCentiSecondTimer()
       })
     }
@@ -2326,18 +3026,25 @@ internal func didSwipe(sender: UISwipeGestureRecognizer){
     case 8 :
       if(sender.direction == .Down){
         print("did SWipe case8 :swipeDpwn")
-        UIView.animateWithDuration(0.5,
+        
+               UIView.animateWithDuration(0.5,
                                    animations: {() -> Void in
                                     self.cameraView.alpha = 0.5
                                     self.viewerOpeView.center.y =  self.buttonMainCenter.y
                                     self.myToolBar.alpha = 1
                                     self.editParametorViewChange(1)
-                                    
+                                    //self.viewerInfoButton.alpha=0
           },completion: { finished in
             self.barSizeChangeAnimationCompleted = true
-            self.noActionTimer = 0
+            /*self.viewerInfoButton.setImage(UIImage(named:"up-alpha-nega-100px.png"), forState: UIControlState.Normal)
+            UIView.animateWithDuration(0.3,
+              animations: {() -> Void in
+                self.viewerInfoButton.alpha=1
+              },completion: { finished in
+            })*/
             self.phaize = 0
             print("phaze:",self.phaize)
+            self.noActionTimer = 0
         })
 
       }

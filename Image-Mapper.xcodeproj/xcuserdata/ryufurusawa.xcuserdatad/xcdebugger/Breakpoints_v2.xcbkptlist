@@ -24,11 +24,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "image-scan/ViewController.swift"
-            timestampString = "488221632.140645"
+            timestampString = "489487921.810665"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "229"
-            endingLineNumber = "229"
+            startingLineNumber = "281"
+            endingLineNumber = "281"
             landmarkName = "ViewController"
             landmarkType = "3">
          </BreakpointContent>
@@ -45,8 +45,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "18"
             endingLineNumber = "18"
-            landmarkName = "tint(_:)"
-            landmarkType = "5">
+            landmarkName = "tint(color:)"
+            landmarkType = "7">
             <Locations>
                <Location
                   shouldBeEnabled = "No"
@@ -118,13 +118,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "image-scan/ViewController.swift"
-            timestampString = "488221632.140645"
+            timestampString = "489488948.24251"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "997"
-            endingLineNumber = "997"
-            landmarkName = "imagePickerController(_:didFinishPickingMediaWithInfo:)"
-            landmarkType = "5">
+            startingLineNumber = "1462"
+            endingLineNumber = "1462"
+            landmarkName = "imagePickerController(imagePicker:didFinishPickingMediaWithInfo:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -134,13 +134,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "image-scan/ViewController.swift"
-            timestampString = "488221632.140645"
+            timestampString = "489487921.810665"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "372"
-            endingLineNumber = "372"
+            startingLineNumber = "440"
+            endingLineNumber = "440"
             landmarkName = "viewDidLoad()"
-            landmarkType = "5">
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -150,13 +150,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "image-scan/ViewController.swift"
-            timestampString = "488221632.140645"
+            timestampString = "489488948.24251"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1178"
-            endingLineNumber = "1178"
-            landmarkName = "prePlay(_:mode:speed:)"
-            landmarkType = "5">
+            startingLineNumber = "1642"
+            endingLineNumber = "1642"
+            landmarkName = "prePlay(style:mode:speed:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -166,13 +166,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "image-scan/ViewController.swift"
-            timestampString = "488225145.389421"
+            timestampString = "489488948.24251"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2349"
-            endingLineNumber = "2349"
-            landmarkName = "didSwipe(_:)"
-            landmarkType = "5">
+            startingLineNumber = "3056"
+            endingLineNumber = "3056"
+            landmarkName = "didSwipe(sender:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -182,13 +182,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "image-scan/ViewController.swift"
-            timestampString = "488225145.389421"
+            timestampString = "489488948.24251"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2360"
-            endingLineNumber = "2360"
-            landmarkName = "didSwipe(_:)"
-            landmarkType = "5">
+            startingLineNumber = "3067"
+            endingLineNumber = "3067"
+            landmarkName = "didSwipe(sender:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -198,13 +198,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "image-scan/ViewController.swift"
-            timestampString = "488225145.389421"
+            timestampString = "489488948.24251"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1918"
-            endingLineNumber = "1918"
-            landmarkName = "panGesture(_:)"
-            landmarkType = "5">
+            startingLineNumber = "2416"
+            endingLineNumber = "2416"
+            landmarkName = "panGesture(sender:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -214,13 +214,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "image-scan/ViewController.swift"
-            timestampString = "488225145.389421"
+            timestampString = "489488948.24251"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1485"
-            endingLineNumber = "1485"
-            landmarkName = "scanPlay(_:endX:mode:speed:)"
-            landmarkType = "5">
+            startingLineNumber = "1951"
+            endingLineNumber = "1951"
+            landmarkName = "scanPlay(startX:endX:mode:speed:)"
+            landmarkType = "7">
             <Locations>
                <Location
                   shouldBeEnabled = "No"
@@ -262,13 +262,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "image-scan/ViewController.swift"
-            timestampString = "488221632.140645"
+            timestampString = "489487921.810665"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "454"
-            endingLineNumber = "454"
+            startingLineNumber = "529"
+            endingLineNumber = "529"
             landmarkName = "viewDidLoad()"
-            landmarkType = "5">
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -278,13 +278,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "image-scan/ViewController.swift"
-            timestampString = "488225145.389421"
+            timestampString = "489488948.24251"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2061"
-            endingLineNumber = "2061"
-            landmarkName = "setPanGesture(_:)"
-            landmarkType = "5">
+            startingLineNumber = "2709"
+            endingLineNumber = "2709"
+            landmarkName = "setPanGesture(sender:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -294,13 +294,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "image-scan/ViewController.swift"
-            timestampString = "488225145.389421"
+            timestampString = "489488948.24251"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1275"
-            endingLineNumber = "1275"
-            landmarkName = "playimage(_:mode:speed:)"
-            landmarkType = "5">
+            startingLineNumber = "1740"
+            endingLineNumber = "1740"
+            landmarkName = "playimage(style:mode:speed:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -310,13 +310,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "image-scan/ViewController.swift"
-            timestampString = "488225145.389421"
+            timestampString = "489488948.24251"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1433"
-            endingLineNumber = "1433"
-            landmarkName = "newScanPlay(_:endX:mode:stepSize:stepNum:)"
-            landmarkType = "5">
+            startingLineNumber = "1899"
+            endingLineNumber = "1899"
+            landmarkName = "newScanPlay(startX:endX:mode:stepSize:stepNum:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -326,13 +326,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "image-scan/ViewController.swift"
-            timestampString = "488225145.389421"
+            timestampString = "489488948.24251"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1418"
-            endingLineNumber = "1418"
-            landmarkName = "newScanPlay(_:endX:mode:stepSize:stepNum:)"
-            landmarkType = "5">
+            startingLineNumber = "1884"
+            endingLineNumber = "1884"
+            landmarkName = "newScanPlay(startX:endX:mode:stepSize:stepNum:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -342,13 +342,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "image-scan/ViewController.swift"
-            timestampString = "488221632.140645"
+            timestampString = "489487921.810665"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "472"
-            endingLineNumber = "472"
+            startingLineNumber = "538"
+            endingLineNumber = "538"
             landmarkName = "viewDidLoad()"
-            landmarkType = "5">
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -358,13 +358,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "image-scan/ViewController.swift"
-            timestampString = "488221632.140645"
+            timestampString = "489488948.24251"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "463"
-            endingLineNumber = "463"
-            landmarkName = "viewDidLoad()"
-            landmarkType = "5">
+            startingLineNumber = "2709"
+            endingLineNumber = "2709"
+            landmarkName = "setPanGesture(sender:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -374,13 +374,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "image-scan/ViewController.swift"
-            timestampString = "488221632.140645"
+            timestampString = "489488948.24251"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "492"
-            endingLineNumber = "492"
-            landmarkName = "viewDidLoad()"
-            landmarkType = "5">
+            startingLineNumber = "2774"
+            endingLineNumber = "2774"
+            landmarkName = "setPanGesture(sender:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -390,13 +390,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "image-scan/ViewController.swift"
-            timestampString = "488221632.140645"
+            timestampString = "489488948.24251"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "496"
-            endingLineNumber = "496"
-            landmarkName = "viewDidLoad()"
-            landmarkType = "5">
+            startingLineNumber = "2972"
+            endingLineNumber = "2972"
+            landmarkName = "didSwipe(sender:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -406,13 +406,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "image-scan/ViewController.swift"
-            timestampString = "488225145.389421"
+            timestampString = "489488948.24251"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2061"
-            endingLineNumber = "2061"
-            landmarkName = "setPanGesture(_:)"
-            landmarkType = "5">
+            startingLineNumber = "734"
+            endingLineNumber = "734"
+            landmarkName = "mainInfoLabelformat(label:imgView:num:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -422,13 +422,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "image-scan/ViewController.swift"
-            timestampString = "488225145.389421"
+            timestampString = "489488948.24251"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2126"
-            endingLineNumber = "2126"
-            landmarkName = "setPanGesture(_:)"
-            landmarkType = "5">
+            startingLineNumber = "2273"
+            endingLineNumber = "2273"
+            landmarkName = "setMainLabel()"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -438,13 +438,253 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "image-scan/ViewController.swift"
-            timestampString = "488225145.389421"
+            timestampString = "489487921.810665"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2279"
-            endingLineNumber = "2279"
-            landmarkName = "didSwipe(_:)"
-            landmarkType = "5">
+            startingLineNumber = "565"
+            endingLineNumber = "565"
+            landmarkName = "viewDidAppear(animated:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "image-scan/ViewController.swift"
+            timestampString = "489487921.810665"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "563"
+            endingLineNumber = "563"
+            landmarkName = "viewDidAppear(animated:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "image-scan/ViewController.swift"
+            timestampString = "489488948.24251"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "648"
+            endingLineNumber = "648"
+            landmarkName = "rePosittion()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "image-scan/ViewController.swift"
+            timestampString = "489488948.24251"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "650"
+            endingLineNumber = "650"
+            landmarkName = "rePosittion()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "image-scan/ViewController.swift"
+            timestampString = "489488948.24251"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "651"
+            endingLineNumber = "651"
+            landmarkName = "rePosittion()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "image-scan/ViewController.swift"
+            timestampString = "489488948.24251"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1305"
+            endingLineNumber = "1305"
+            landmarkName = "scanSizeFit(imgView:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "image-scan/ViewController.swift"
+            timestampString = "489488948.24251"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1306"
+            endingLineNumber = "1306"
+            landmarkName = "scanSizeFit(imgView:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "image-scan/ViewController.swift"
+            timestampString = "489488948.24251"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1307"
+            endingLineNumber = "1307"
+            landmarkName = "scanSizeFit(imgView:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "image-scan/ViewController.swift"
+            timestampString = "489488948.24251"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1303"
+            endingLineNumber = "1303"
+            landmarkName = "scanSizeFit(imgView:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "image-scan/ViewController.swift"
+            timestampString = "489488948.24251"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1297"
+            endingLineNumber = "1297"
+            landmarkName = "scanSizeSet(imgView:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "image-scan/ViewController.swift"
+            timestampString = "489488948.24251"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1298"
+            endingLineNumber = "1298"
+            landmarkName = "scanSizeSet(imgView:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "image-scan/ViewController.swift"
+            timestampString = "489488948.24251"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1299"
+            endingLineNumber = "1299"
+            landmarkName = "scanSizeSet(imgView:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "image-scan/ViewController.swift"
+            timestampString = "489488948.24251"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1305"
+            endingLineNumber = "1305"
+            landmarkName = "scanSizeFit(imgView:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "image-scan/ViewController.swift"
+            timestampString = "489489073.141015"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "645"
+            endingLineNumber = "645"
+            landmarkName = "rePosittion()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "image-scan/ViewController.swift"
+            timestampString = "489489074.693929"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "647"
+            endingLineNumber = "647"
+            landmarkName = "rePosittion()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "image-scan/ViewController.swift"
+            timestampString = "489489193.843947"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "644"
+            endingLineNumber = "644"
+            landmarkName = "rePosittion()"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
